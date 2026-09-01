@@ -1429,21 +1429,29 @@
       }, 50);
     }
 
+    const MONTH_CHRONO_KEYS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+    function getMonthChronoIndex(val) {
+      if (!val) return 999;
+      const s = String(val).toLowerCase().trim();
+      const idx = MONTH_CHRONO_KEYS.findIndex(m => s === m || s.startsWith(m) || s.includes(m));
+      return idx !== -1 ? idx : 999;
+    }
+
     function populateFilterSelects() {
       const monthSelect = document.getElementById('filterMonth');
       const companySelect = document.getElementById('filterCompany');
       const groupCIDSelect = document.getElementById('filterGroupCID');
       const codeCIDSelect = document.getElementById('filterCIDCode');
 
-      const monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
       const monthDisplay = { jan: 'Janeiro', fev: 'Fevereiro', mar: 'Março', abr: 'Abril', mai: 'Maio', jun: 'Junho', jul: 'Julho', ago: 'Agosto', set: 'Setembro', out: 'Outubro', nov: 'Novembro', dez: 'Dezembro' };
       
-      const availableMonths = Array.from(new Set(records.map(r => (r.data || '').toLowerCase()).filter(Boolean)));
-      availableMonths.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+      const availableMonths = Array.from(new Set(records.map(r => (r.data || '').toLowerCase().trim()).filter(Boolean)));
+      availableMonths.sort((a, b) => getMonthChronoIndex(a) - getMonthChronoIndex(b));
 
-      const companies = Array.from(new Set(records.map(r => sanitizeCompanyName(r.empresa)).filter(Boolean))).sort();
-      const groups = Array.from(new Set(records.map(r => r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr)).filter(Boolean))).sort();
-      const cids = Array.from(new Set(records.map(r => r.cidDescr || r.cidCod).filter(Boolean))).sort();
+      const companies = Array.from(new Set(records.map(r => sanitizeCompanyName(r.empresa)).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      const groups = Array.from(new Set(records.map(r => r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr)).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+      const cids = Array.from(new Set(records.map(r => r.cidDescr || r.cidCod).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
       monthSelect.innerHTML = '<option value="ALL">Todos os Meses</option>' + availableMonths.map(m => `<option value="${m}">${monthDisplay[m] || m.toUpperCase()}</option>`).join('');
       companySelect.innerHTML = '<option value="ALL">Todas as Empresas</option>' + companies.map(c => `<option value="${c}">${c}</option>`).join('');
@@ -1517,20 +1525,23 @@
     }
 
     function renderMonthlyChart() {
-      const monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul'];
-      const monthDisplay = { jan: 'Jan', fev: 'Fev', mar: 'Mar', abr: 'Abr', mai: 'Mai', jun: 'Jun', jul: 'Jul' };
+      const monthDisplay = { jan: 'Jan', fev: 'Fev', mar: 'Mar', abr: 'Abr', mai: 'Mai', jun: 'Jun', jul: 'Jul', ago: 'Ago', set: 'Set', out: 'Out', nov: 'Nov', dez: 'Dez' };
       
+      const existingMonths = Array.from(new Set(records.map(r => (r.data || '').toLowerCase().trim()).filter(Boolean)));
+      let monthOrder = MONTH_CHRONO_KEYS.filter(m => existingMonths.includes(m));
+      if (!monthOrder.length) monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul'];
+
       const monthTotals = {};
       monthOrder.forEach(m => monthTotals[m] = 0);
       
       filteredRecords.forEach(r => {
-        const m = (r.data || '').toLowerCase();
+        const m = (r.data || '').toLowerCase().trim();
         if (monthTotals[m] !== undefined) {
           monthTotals[m] += (parseFloat(r.horas) || 0);
         }
       });
 
-      const labels = monthOrder.map(m => monthDisplay[m]);
+      const labels = monthOrder.map(m => monthDisplay[m] || m.toUpperCase());
       const data = monthOrder.map(m => monthTotals[m]);
 
       const ctx = document.getElementById('chartMonthly').getContext('2d');
@@ -2069,13 +2080,24 @@
         if (currentSort.col === 'horas') {
           valA = parseFloat(valA) || 0;
           valB = parseFloat(valB) || 0;
+        } else if (currentSort.col === 'data') {
+          valA = getMonthChronoIndex(valA);
+          valB = getMonthChronoIndex(valB);
         } else {
           valA = (valA || '').toString().toLowerCase();
           valB = (valB || '').toString().toLowerCase();
         }
         if (valA < valB) return currentSort.asc ? -1 : 1;
         if (valA > valB) return currentSort.asc ? 1 : -1;
-        return 0;
+
+        // Desempate estável: se estiver ordenando por data, desempata por horas maiores
+        if (currentSort.col === 'data') {
+          return (parseFloat(b.horas) || 0) - (parseFloat(a.horas) || 0);
+        }
+        // Se estiver ordenando por outra coluna, desempata cronologicamente
+        const dateDiff = getMonthChronoIndex(a.data) - getMonthChronoIndex(b.data);
+        if (dateDiff !== 0) return dateDiff;
+        return (parseFloat(b.horas) || 0) - (parseFloat(a.horas) || 0);
       });
 
       const totalItems = filteredRecords.length;
