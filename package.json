@@ -4,8 +4,7 @@
   "private": true,
   "description": "Dashboard Web de Absenteísmo e CIDs 2026 - Grupo Açotubo SESMT",
   "scripts": {
-    "start": "serve .",
-    "build": "echo 'Build complete'"
+    "start": "serve ."
   },
   "keywords": [
     "sesmt",

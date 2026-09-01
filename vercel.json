@@ -1,9 +1,10 @@
 {
-  "version": 2,
-  "routes": [
+  "outputDirectory": ".",
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
+
