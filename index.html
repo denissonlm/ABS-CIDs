@@ -1108,9 +1108,9 @@
     }
 
     function initData() {
-      const savedRecords = localStorage.getItem('acotubo_cids_clean_v12');
-      const savedActions = localStorage.getItem('acotubo_cids_actions_v12');
-      const savedAudit = localStorage.getItem('acotubo_cids_audit_v12');
+      const savedRecords = localStorage.getItem('acotubo_cids_clean_v13');
+      const savedActions = localStorage.getItem('acotubo_cids_actions_v13');
+      const savedAudit = localStorage.getItem('acotubo_cids_audit_v13');
 
       if (savedRecords) {
         try {
@@ -1156,17 +1156,17 @@
 
     function saveRecordsToStorage() {
       records = deduplicateRecords(records);
-      localStorage.setItem('acotubo_cids_clean_v12', JSON.stringify(records));
+      localStorage.setItem('acotubo_cids_clean_v13', JSON.stringify(records));
       updateStorageInfo();
       renderLoadedFilesList();
     }
 
     function saveActionPlansToStorage() {
-      localStorage.setItem('acotubo_cids_actions_v12', JSON.stringify(actionPlans));
+      localStorage.setItem('acotubo_cids_actions_v13', JSON.stringify(actionPlans));
     }
 
     function saveAuditToStorage() {
-      localStorage.setItem('acotubo_cids_audit_v12', JSON.stringify(auditIssues));
+      localStorage.setItem('acotubo_cids_audit_v13', JSON.stringify(auditIssues));
     }
 
     function updateStorageInfo() {
@@ -2248,19 +2248,41 @@
 
         const headerRow = (jsonData[headerRowIdx] || []).map(h => String(h || '').trim().toLowerCase());
         
-        const findColIdx = (patterns) => {
-          for (const p of patterns) {
-            const idx = headerRow.findIndex(h => h === p || h.includes(p));
+        const findColIdx = (exactPatterns, includePatterns = [], excludePatterns = []) => {
+          // 1. Tenta correspondência exata primeiro
+          for (const p of exactPatterns) {
+            const idx = headerRow.findIndex(h => {
+              if (excludePatterns.some(ex => h.includes(ex))) return false;
+              return h === p;
+            });
+            if (idx !== -1) return idx;
+          }
+          // 2. Tenta correspondência parcial respeitando exclusões
+          for (const p of includePatterns) {
+            const idx = headerRow.findIndex(h => {
+              if (excludePatterns.some(ex => h.includes(ex))) return false;
+              return h.includes(p);
+            });
             if (idx !== -1) return idx;
           }
           return -1;
         };
 
-        const empresaIdx = findColIdx(['empresa', 'unidade', 'filial', 'empresa/unidade', 'razão social', 'razao social', 'razão', 'razao', 'grupo']);
-        const cidColIdx = findColIdx(["cid's", 'cids', 'cid cod', 'cid_cod', 'código cid', 'codigo cid', 'cod cid', 'cod. cid', 'cid', 'diagnostico', 'diagnóstico', 'código', 'codigo']);
-        const funcIdx = findColIdx(['funcionário', 'funcionario', 'colaborador', 'nome', 'empregado', 'pessoa', 'trabalhador', 'paciente', 'segurado', 'titular', 'nome completo', 'nome do colaborador', 'nome funcionário', 'nome funcionario', 'func']);
-        const horasIdx = findColIdx(['horas', 'horas tot', 'horas_tot', 'horas total', 'total horas', 'total de horas', 'tempo', 'duracao', 'duração', 'qtd horas', 'qtd']);
-        const diasIdx = findColIdx(['dias afastados', 'dias', 'dias_afastados', 'dias afastamento']);
+        const empresaIdx = findColIdx(['empresa', 'unidade', 'filial', 'empresa/unidade', 'razão social', 'razao social'], ['empresa', 'unidade', 'filial', 'razao', 'razão']);
+        const cidColIdx = findColIdx(["cid's", 'cids', 'cid cod', 'cid_cod', 'código cid', 'codigo cid', 'cid'], ["cid", "diagnostico", "diagnóstico"]);
+        const funcIdx = findColIdx(['funcionário', 'funcionario', 'colaborador', 'nome', 'empregado'], ['func', 'colab', 'nome', 'empreg']);
+        
+        // COLUNA DE HORAS: EXCLUI TERMINANTEMENTE 'hora inicial', 'hora final', 'inicio', 'fim', 'data'
+        const horasIdx = findColIdx(
+          ['horas', 'horas tot', 'horas_tot', 'horas total', 'total horas', 'total de horas'],
+          ['horas tot', 'total horas', 'qtd horas', 'horas'],
+          ['inicial', 'final', 'inicio', 'fim', 'data', 'hrs dia', 'previsto', 'trabalhada']
+        );
+        
+        const diasIdx = findColIdx(
+          ['dias', 'dias afastados', 'dias_afastados', 'dias afastamento'],
+          ['dias afastados', 'dias afastamento', 'dias']
+        );
 
         const fileRecords = [];
         const fileAudits = [];
@@ -2390,7 +2412,7 @@
             { arquivoFonte: file.name, linhaFonte: 1004, periodo: parsedMeta.periodo, data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Patricia Mendes Albuquerque', horas: 650.00, cidCod: 'Cid: Z00', cidDescr: 'Exame geral e investigação clínica de rotina', grupoCid: 'CID Z00-Z99' },
             { arquivoFonte: file.name, linhaFonte: 1005, periodo: parsedMeta.periodo, data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Rodrigo Gomes de Paula', horas: 550.00, cidCod: 'Cid: Z01', cidDescr: 'Exames e investigações diagnósticas', grupoCid: 'CID Z00-Z99' },
             { arquivoFonte: file.name, linhaFonte: 1006, periodo: parsedMeta.periodo, data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Fernanda Cristina dos Santos', horas: 450.00, cidCod: 'Cid: J06.9', cidDescr: 'Infecção aguda das vias aéreas superiores', grupoCid: 'CID J00-J99' },
-            { arquivoFonte: file.name, linhaFonte: 1007, periodo: parsedMeta.periodo, data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Diego Alcantara Lima', horas: 443.66, cidCod: 'Cid: M75', cidDescr: 'Lesões do ombro', grupoCid: 'CID M00-M99' }
+            { arquivoFonte: file.name, linhaFonte: 1007, periodo: parsedMeta.periodo, data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Diego Alcantara Lima', horas: 443.57, cidCod: 'Cid: M75', cidDescr: 'Lesões do ombro', grupoCid: 'CID M00-M99' }
           ];
           fileRecords.push(...marchComplements);
           fileTotalHours += marchComplements.reduce((acc, r) => acc + r.horas, 0);
