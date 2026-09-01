@@ -145,6 +145,11 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center gap-2 shrink-0">
+          <button id="btnToggleLabels" onclick="toggleDataLabels()" title="Mostrar ou Ocultar Rótulos de Valores nos Gráficos (Ideal para Relatórios e Prints)" class="p-2 rounded-xl bg-brand-50 border border-brand-300 hover:bg-brand-100 text-brand-700 transition-all flex items-center gap-1.5 text-xs font-bold shadow-xs">
+            <i id="btnToggleLabelsIcon" data-lucide="tag" class="w-4 h-4 text-brand-600"></i>
+            <span id="btnToggleLabelsText" class="hidden sm:inline">Rótulos: Visíveis</span>
+          </button>
+
           <button onclick="document.getElementById('folderInput').click()" title="Importar pasta 'Fontes' inteira" class="px-3.5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs flex items-center gap-2 shadow-sm shadow-brand-500/25 transition-all">
             <i data-lucide="folder-plus" class="w-4 h-4"></i>
             <span class="hidden sm:inline">Upload Pasta Fontes</span>
@@ -213,7 +218,11 @@
           <h2 class="text-xs font-extrabold text-gray-900 tracking-wide uppercase">Filtros de Segmentação</h2>
         </div>
 
-        <div class="flex items-center gap-3 self-end sm:self-auto">
+        <div class="flex items-center gap-2 sm:gap-3 self-end sm:self-auto flex-wrap">
+          <button id="filterBarToggleLabels" onclick="toggleDataLabels()" title="Alternar exibição de valores nos gráficos" class="text-xs font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1.5 transition-all">
+            <i id="filterBarToggleLabelsIcon" data-lucide="tag" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span id="filterBarToggleLabelsText">Rótulos: Ativos</span>
+          </button>
           <span id="activeFilterBadge" class="text-[11px] font-bold text-gray-600 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
             Exibindo registros...
           </span>
@@ -296,7 +305,13 @@
                 <p class="text-[11px] text-gray-400">Evolução mensal (Jan a Jul / 2026)</p>
               </div>
             </div>
-            <span class="text-[10px] font-extrabold text-gray-700 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">2026</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="toggleDataLabels()" title="Alternar Rótulos de Dados" class="btn-chart-label-toggle text-[10px] font-bold text-gray-600 hover:text-brand-600 bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 transition-all">
+                <i data-lucide="tag" class="w-3 h-3 text-brand-600"></i>
+                <span class="lbl-status-text">Rótulos</span>
+              </button>
+              <span class="text-[10px] font-extrabold text-gray-700 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">2026</span>
+            </div>
           </div>
           <div class="relative w-full h-64">
             <canvas id="chartMonthly"></canvas>
@@ -315,6 +330,10 @@
                 <p class="text-[11px] text-gray-400">Participação percentual</p>
               </div>
             </div>
+            <button onclick="toggleDataLabels()" title="Alternar Rótulos de Dados" class="btn-chart-label-toggle text-[10px] font-bold text-gray-600 hover:text-brand-600 bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 transition-all">
+              <i data-lucide="tag" class="w-3 h-3 text-brand-600"></i>
+              <span class="lbl-status-text">Rótulos</span>
+            </button>
           </div>
           <div class="relative w-full h-64 flex items-center justify-center">
             <canvas id="chartCompany"></canvas>
@@ -333,6 +352,10 @@
                 <p class="text-[11px] text-gray-400">Classificação estrita por capítulo CID-10</p>
               </div>
             </div>
+            <button onclick="toggleDataLabels()" title="Alternar Rótulos de Dados" class="btn-chart-label-toggle text-[10px] font-bold text-gray-600 hover:text-brand-600 bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 transition-all">
+              <i data-lucide="tag" class="w-3 h-3 text-brand-600"></i>
+              <span class="lbl-status-text">Rótulos</span>
+            </button>
           </div>
           <div class="relative w-full h-64">
             <canvas id="chartRankingCID"></canvas>
@@ -429,6 +452,10 @@
                 <p class="text-[11px] text-gray-400">Quantidade de colaboradores por capítulo</p>
               </div>
             </div>
+            <button onclick="toggleDataLabels()" title="Alternar Rótulos de Dados" class="btn-chart-label-toggle text-[10px] font-bold text-gray-600 hover:text-brand-600 bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 transition-all">
+              <i data-lucide="tag" class="w-3 h-3 text-brand-600"></i>
+              <span class="lbl-status-text">Rótulos</span>
+            </button>
           </div>
           <div class="relative w-full h-72">
             <canvas id="chartImpactBars"></canvas>
@@ -446,6 +473,10 @@
                 <p class="text-[11px] text-gray-400">Proporção percentual sem campos em branco</p>
               </div>
             </div>
+            <button onclick="toggleDataLabels()" title="Alternar Rótulos de Dados" class="btn-chart-label-toggle text-[10px] font-bold text-gray-600 hover:text-brand-600 bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 transition-all">
+              <i data-lucide="tag" class="w-3 h-3 text-brand-600"></i>
+              <span class="lbl-status-text">Rótulos</span>
+            </button>
           </div>
           <div class="relative w-full h-72 flex items-center justify-center">
             <canvas id="chartImpactPie"></canvas>
@@ -1006,6 +1037,68 @@
     let chartImpactBarsInstance = null;
     let chartImpactPieInstance = null;
 
+    // Estado global de exibição de rótulos nos gráficos
+    let showDataLabels = localStorage.getItem('acotubo_show_chart_labels') !== null
+      ? localStorage.getItem('acotubo_show_chart_labels') === 'true'
+      : true;
+
+    function updateDataLabelsButtonUI() {
+      const btn = document.getElementById('btnToggleLabels');
+      const txt = document.getElementById('btnToggleLabelsText');
+      const icon = document.getElementById('btnToggleLabelsIcon');
+      
+      const filterBtn = document.getElementById('filterBarToggleLabels');
+      const filterTxt = document.getElementById('filterBarToggleLabelsText');
+      const filterIcon = document.getElementById('filterBarToggleLabelsIcon');
+
+      if (btn && txt) {
+        if (showDataLabels) {
+          btn.className = "p-2 rounded-xl bg-brand-50 border border-brand-300 hover:bg-brand-100 text-brand-700 transition-all flex items-center gap-1.5 text-xs font-bold shadow-xs";
+          txt.innerText = "Rótulos: Visíveis";
+          if (icon) icon.className = "w-4 h-4 text-brand-600";
+        } else {
+          btn.className = "p-2 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-500 transition-all flex items-center gap-1.5 text-xs font-semibold";
+          txt.innerText = "Rótulos: Ocultos";
+          if (icon) icon.className = "w-4 h-4 text-gray-400";
+        }
+      }
+
+      if (filterBtn && filterTxt) {
+        if (showDataLabels) {
+          filterBtn.className = "text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-lg border border-brand-300 flex items-center gap-1.5 transition-all";
+          filterTxt.innerText = "Rótulos: Ativos";
+          if (filterIcon) filterIcon.className = "w-3.5 h-3.5 text-brand-600";
+        } else {
+          filterBtn.className = "text-xs font-semibold text-gray-500 bg-gray-50 hover:bg-gray-100 px-2.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1.5 transition-all";
+          filterTxt.innerText = "Rótulos: Ocultos";
+          if (filterIcon) filterIcon.className = "w-3.5 h-3.5 text-gray-400";
+        }
+      }
+
+      document.querySelectorAll('.btn-chart-label-toggle').forEach(el => {
+        const span = el.querySelector('.lbl-status-text');
+        const i = el.querySelector('i');
+        if (showDataLabels) {
+          el.className = "btn-chart-label-toggle text-[10px] font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 px-2 py-0.5 rounded-md border border-brand-300 flex items-center gap-1 transition-all";
+          if (span) span.innerText = "Rótulos ON";
+          if (i) i.className = "w-3 h-3 text-brand-600";
+        } else {
+          el.className = "btn-chart-label-toggle text-[10px] font-medium text-gray-500 bg-gray-50 hover:bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200 flex items-center gap-1 transition-all";
+          if (span) span.innerText = "Rótulos OFF";
+          if (i) i.className = "w-3 h-3 text-gray-400";
+        }
+      });
+
+      lucide.createIcons();
+    }
+
+    function toggleDataLabels() {
+      showDataLabels = !showDataLabels;
+      localStorage.setItem('acotubo_show_chart_labels', showDataLabels);
+      updateDataLabelsButtonUI();
+      renderCharts();
+    }
+
     function parsePeriodFromFilename(filename) {
       const cleanName = filename.replace(/\\/g, '/').split('/').pop();
       const dateMatch = cleanName.match(/(\d{2})[.\/-](\d{2})[.\/-](\d{2,4})\s+(?:a\s+|à\s+)?(\d{2})[.\/-](\d{2})[.\/-](\d{2,4})/i);
@@ -1078,6 +1171,7 @@
       updateStorageInfo();
       renderLoadedFilesList();
       renderAuditTable();
+      updateDataLabelsButtonUI();
       lucide.createIcons();
     }
 
@@ -1364,6 +1458,48 @@
       gradient.addColorStop(0, 'rgba(227, 6, 19, 0.20)');
       gradient.addColorStop(1, 'rgba(227, 6, 19, 0.00)');
 
+      const lineDataLabelPlugin = {
+        id: 'lineDataLabelPlugin',
+        afterDatasetsDraw(chart) {
+          if (!showDataLabels) return;
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((point, index) => {
+              const val = dataset.data[index];
+              if (val === undefined || val === null) return;
+              const formatted = formatNumberBR(val) + ' h';
+
+              ctx.save();
+              ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+              const textWidth = ctx.measureText(formatted).width;
+              const badgeW = textWidth + 10;
+              const badgeH = 18;
+              const x = Math.max(badgeW / 2 + 2, Math.min(point.x, chart.width - badgeW / 2 - 2));
+              const y = Math.max(badgeH / 2 + 3, point.y - 13);
+
+              ctx.fillStyle = '#FFFFFF';
+              ctx.strokeStyle = '#E30613';
+              ctx.lineWidth = 1.2;
+              ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+              ctx.shadowBlur = 3;
+              ctx.shadowOffsetY = 1;
+              ctx.beginPath();
+              ctx.roundRect(x - badgeW / 2, y - badgeH / 2, badgeW, badgeH, 4);
+              ctx.fill();
+              ctx.stroke();
+
+              ctx.shadowColor = 'transparent';
+              ctx.fillStyle = '#111827';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(formatted, x, y);
+              ctx.restore();
+            });
+          });
+        }
+      };
+
       chartMonthlyInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1383,9 +1519,17 @@
             pointHoverRadius: 7
           }]
         },
+        plugins: [lineDataLabelPlugin],
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          layout: {
+            padding: {
+              top: showDataLabels ? 24 : 10,
+              right: 15,
+              left: 10
+            }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -1446,6 +1590,46 @@
       const ctx = document.getElementById('chartCompany').getContext('2d');
       if (chartCompanyInstance) chartCompanyInstance.destroy();
 
+      const doughnutDataLabelPlugin = {
+        id: 'doughnutDataLabelPlugin',
+        afterDatasetsDraw(chart) {
+          if (!showDataLabels) return;
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            const total = dataset.data.reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+            if (total === 0) return;
+
+            meta.data.forEach((arc, index) => {
+              const val = dataset.data[index];
+              if (!val) return;
+              const pct = (val / total) * 100;
+              if (pct < 3) return;
+
+              const center = arc.getCenterPoint();
+              const text = `${pct.toFixed(0)}%`;
+
+              ctx.save();
+              ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+              const textWidth = ctx.measureText(text).width;
+              const badgeW = textWidth + 8;
+              const badgeH = 16;
+
+              ctx.fillStyle = 'rgba(17, 24, 39, 0.85)';
+              ctx.beginPath();
+              ctx.roundRect(center.x - badgeW / 2, center.y - badgeH / 2, badgeW, badgeH, 4);
+              ctx.fill();
+
+              ctx.fillStyle = '#FFFFFF';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(text, center.x, center.y);
+              ctx.restore();
+            });
+          });
+        }
+      };
+
       chartCompanyInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -1458,6 +1642,7 @@
             hoverOffset: 6
           }]
         },
+        plugins: [doughnutDataLabelPlugin],
         options: {
           responsive: true,
           maintainAspectRatio: false,
@@ -1508,12 +1693,14 @@
       const dataLabelPlugin = {
         id: 'dataLabelPlugin',
         afterDatasetsDraw(chart) {
+          if (!showDataLabels) return;
           const { ctx } = chart;
           chart.data.datasets.forEach((dataset, i) => {
             const meta = chart.getDatasetMeta(i);
             meta.data.forEach((bar, index) => {
               const value = dataset.data[index];
-              const formattedVal = Math.round(value).toLocaleString('pt-BR');
+              if (value === undefined || value === null) return;
+              const formattedVal = Math.round(value).toLocaleString('pt-BR') + ' h';
               
               const barX = bar.x;
               const barY = bar.y;
@@ -1562,7 +1749,7 @@
           responsive: true,
           maintainAspectRatio: false,
           layout: {
-            padding: { right: 55 }
+            padding: { right: showDataLabels ? 65 : 15 }
           },
           plugins: {
             legend: { display: false },
@@ -1605,6 +1792,48 @@
       const ctxBars = document.getElementById('chartImpactBars').getContext('2d');
       if (chartImpactBarsInstance) chartImpactBarsInstance.destroy();
 
+      const impactBarsLabelPlugin = {
+        id: 'impactBarsLabelPlugin',
+        afterDatasetsDraw(chart) {
+          if (!showDataLabels) return;
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, index) => {
+              const val = dataset.data[index];
+              if (val === undefined || val === null) return;
+              const formattedVal = `${val} colab.`;
+
+              ctx.save();
+              ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+              const textWidth = ctx.measureText(formattedVal).width;
+              const badgeW = textWidth + 10;
+              const badgeH = 18;
+              const x = bar.x;
+              const y = Math.max(badgeH / 2 + 3, bar.y - 12);
+
+              ctx.fillStyle = '#FFFFFF';
+              ctx.strokeStyle = '#E5E7EB';
+              ctx.lineWidth = 1.2;
+              ctx.shadowColor = 'rgba(0, 0, 0, 0.06)';
+              ctx.shadowBlur = 3;
+              ctx.shadowOffsetY = 1;
+              ctx.beginPath();
+              ctx.roundRect(x - badgeW / 2, y - badgeH / 2, badgeW, badgeH, 4);
+              ctx.fill();
+              ctx.stroke();
+
+              ctx.shadowColor = 'transparent';
+              ctx.fillStyle = '#111827';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(formattedVal, x, y);
+              ctx.restore();
+            });
+          });
+        }
+      };
+
       chartImpactBarsInstance = new Chart(ctxBars, {
         type: 'bar',
         data: {
@@ -1616,9 +1845,15 @@
             borderRadius: 6
           }]
         },
+        plugins: [impactBarsLabelPlugin],
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          layout: {
+            padding: {
+              top: showDataLabels ? 22 : 10
+            }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
@@ -1647,6 +1882,46 @@
       const ctxPie = document.getElementById('chartImpactPie').getContext('2d');
       if (chartImpactPieInstance) chartImpactPieInstance.destroy();
 
+      const impactPieLabelPlugin = {
+        id: 'impactPieLabelPlugin',
+        afterDatasetsDraw(chart) {
+          if (!showDataLabels) return;
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            const total = dataset.data.reduce((acc, v) => acc + (parseFloat(v) || 0), 0);
+            if (total === 0) return;
+
+            meta.data.forEach((arc, index) => {
+              const val = dataset.data[index];
+              if (!val) return;
+              const pct = (val / total) * 100;
+              if (pct < 4) return;
+
+              const center = arc.getCenterPoint();
+              const text = `${pct.toFixed(1)}%`;
+
+              ctx.save();
+              ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+              const textWidth = ctx.measureText(text).width;
+              const badgeW = textWidth + 8;
+              const badgeH = 16;
+
+              ctx.fillStyle = 'rgba(17, 24, 39, 0.85)';
+              ctx.beginPath();
+              ctx.roundRect(center.x - badgeW / 2, center.y - badgeH / 2, badgeW, badgeH, 4);
+              ctx.fill();
+
+              ctx.fillStyle = '#FFFFFF';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(text, center.x, center.y);
+              ctx.restore();
+            });
+          });
+        }
+      };
+
       chartImpactPieInstance = new Chart(ctxPie, {
         type: 'pie',
         data: {
@@ -1658,6 +1933,7 @@
             borderWidth: 2
           }]
         },
+        plugins: [impactPieLabelPlugin],
         options: {
           responsive: true,
           maintainAspectRatio: false,
