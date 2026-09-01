@@ -649,7 +649,7 @@
             
             <button onclick="restoreDefaultData()" class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-extrabold text-xs flex items-center justify-center gap-2 transition-all">
               <i data-lucide="refresh-cw" class="w-4 h-4 text-brand-600"></i>
-              Restaurar Base Padrão Exata (20.646,38 h)
+              Restaurar Base Oficial (1.837 Registros | 17.070,38 h)
             </button>
             
             <button onclick="clearStorageData()" class="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-brand-700 font-extrabold text-xs flex items-center justify-center gap-2 transition-all">
@@ -1072,58 +1072,34 @@
       return { periodo: 'Período Geral', monthKey: 'jan', endMonthNum: 1 };
     }
 
-    function initData() {
-      const savedRecords = localStorage.getItem('acotubo_cids_clean_v8');
-      const savedActions = localStorage.getItem('acotubo_cids_actions_v8');
-      const savedAudit = localStorage.getItem('acotubo_cids_audit_v8');
+    function deduplicateRecords(recordList) {
+      if (!Array.isArray(recordList)) return [];
+      const seen = new Set();
+      const result = [];
+      for (const r of recordList) {
+        const key = `${(r.arquivoFonte || '').toLowerCase().trim()}::${r.linhaFonte}::${(r.funcionario || '').toLowerCase().trim()}::${r.data}::${r.horas}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          result.push(r);
+        }
+      }
+      return result;
+    }
 
-      const namesPool = [
-        'Carlos Eduardo Ferreira', 'Marcos Vinicius Santos', 'Juliana Souza Oliveira',
-        'Renato Ferreira da Costa', 'Patricia Mendes Albuquerque', 'Rodrigo Gomes de Paula',
-        'Fernanda Cristina dos Santos', 'Lucas Gabriel Martins', 'Bruno Henrique de Souza',
-        'Diego Alcantara Lima', 'Fabio Junior Ribeiro', 'Camila Aparecida Ramos',
-        'Thiago Henrique Barbosa', 'Eduardo Moreira Fonseca', 'Guilherme Augusto Dias',
-        'Vitor Hugo Nascimento', 'Rafael Costa Mendonça', 'Andre Luiz Barreto',
-        'Marcelo Peixoto Prado', 'Luiz Gustavo Nogueira', 'Leandro Silva Pereira',
-        'Fernando Henrique Cardoso', 'Caio Cesar Silveira', 'Leonardo Batista Rocha',
-        'Gustavo Henrique Farias', 'Marcio Antonio de Souza', 'Everton Rogerio Vieira',
-        'Anderson Clayton Meira', 'Douglas William Camargo', 'Willian Roberto da Cruz',
-        'Felipe dos Santos Moreira', 'Daniela Cristina Faria', 'Tatiane Souza Rezende',
-        'Priscila Helena Ramos', 'Jessica Talita Gomes', 'Renata Silveira Bueno',
-        'Vanessa Toledo Arruda', 'Aline Duarte Macedo', 'Mariana Ferreira Teles',
-        'Marcio Jose dos Santos', 'Silvia Helena Castro', 'Luciano Alves de Freitas',
-        'Claudio Roberto Nunes', 'Monica Cristina Pires', 'Paulo Cesar Antunes',
-        'Gilberto Mendes de Souza', 'Alexandre Carvalho Pinto', 'Renan Felipe Siqueira',
-        'Denis Rogerio de Oliveira', 'Wagner Luis Barbosa', 'Cristiano Ramos de Lima',
-        'Sebastiao Carlos de Jesus', 'Mauricio Donizete Pires', 'Samuel Goncalves Dias'
-      ];
+    function initData() {
+      const savedRecords = localStorage.getItem('acotubo_cids_clean_v10');
+      const savedActions = localStorage.getItem('acotubo_cids_actions_v10');
+      const savedAudit = localStorage.getItem('acotubo_cids_audit_v10');
 
       if (savedRecords) {
         try {
-          records = JSON.parse(savedRecords);
-          let poolIdx = 0;
-          let needsResave = false;
-          records = records.map(r => {
-            let func = String(r.funcionario || '').trim();
-            if (!func || func.startsWith('Equipe') || func.startsWith('Colaborador') || func.startsWith('Colaboradores')) {
-              func = namesPool[poolIdx % namesPool.length];
-              poolIdx++;
-              needsResave = true;
-            }
-            return {
-              ...r,
-              funcionario: func,
-              empresa: sanitizeCompanyName(r.empresa),
-              grupoCid: fitCIDToNearestGroup(r.cidCod, r.cidDescr)
-            };
-          });
-          if (needsResave) saveRecordsToStorage();
+          records = deduplicateRecords(JSON.parse(savedRecords));
         } catch (e) {
-          records = [...DEFAULT_RECORDS];
+          records = deduplicateRecords([...DEFAULT_RECORDS]);
           saveRecordsToStorage();
         }
       } else {
-        records = [...DEFAULT_RECORDS];
+        records = deduplicateRecords([...DEFAULT_RECORDS]);
         saveRecordsToStorage();
       }
 
@@ -1158,17 +1134,18 @@
     }
 
     function saveRecordsToStorage() {
-      localStorage.setItem('acotubo_cids_clean_v8', JSON.stringify(records));
+      records = deduplicateRecords(records);
+      localStorage.setItem('acotubo_cids_clean_v10', JSON.stringify(records));
       updateStorageInfo();
       renderLoadedFilesList();
     }
 
     function saveActionPlansToStorage() {
-      localStorage.setItem('acotubo_cids_actions_v8', JSON.stringify(actionPlans));
+      localStorage.setItem('acotubo_cids_actions_v10', JSON.stringify(actionPlans));
     }
 
     function saveAuditToStorage() {
-      localStorage.setItem('acotubo_cids_audit_v8', JSON.stringify(auditIssues));
+      localStorage.setItem('acotubo_cids_audit_v10', JSON.stringify(auditIssues));
     }
 
     function updateStorageInfo() {
@@ -2419,36 +2396,27 @@
         return;
       }
 
-      // Mapeamento dos arquivos atualmente carregados na base
-      const existingFileNames = Array.from(new Set(records.map(r => r.arquivoFonte).filter(Boolean)));
-      const existingStats = {};
-      records.forEach(r => {
-        const fn = r.arquivoFonte || 'Base Anterior';
-        if (!existingStats[fn]) {
-          existingStats[fn] = {
-            nome: fn,
-            periodo: r.periodo || r.data,
-            linhas: 0,
-            horas: 0
-          };
-        }
-        existingStats[fn].linhas += 1;
-        existingStats[fn].horas += (parseFloat(r.horas) || 0);
-      });
+      const normalizeFn = (name) => String(name || '').replace(/\\/g, '/').split('/').pop().toLowerCase().trim();
 
+      // Mapeamento dos arquivos atualmente carregados na base
+      const existingFileNames = Array.from(new Set(records.map(r => normalizeFn(r.arquivoFonte)).filter(Boolean)));
       const duplicateFiles = [];
       const newFiles = [];
 
       parsedFiles.forEach(pf => {
-        const isDuplicate = existingFileNames.some(existingName => 
-          existingName.toLowerCase().trim() === pf.fileName.toLowerCase().trim()
-        );
+        const cleanName = normalizeFn(pf.fileName);
+        const isDuplicate = existingFileNames.includes(cleanName);
 
         if (isDuplicate) {
-          const matchName = existingFileNames.find(en => en.toLowerCase().trim() === pf.fileName.toLowerCase().trim());
+          const matchRecords = records.filter(r => normalizeFn(r.arquivoFonte) === cleanName);
+          const currentHours = matchRecords.reduce((acc, r) => acc + (parseFloat(r.horas) || 0), 0);
           duplicateFiles.push({
             new: pf,
-            existing: existingStats[matchName] || { linhas: 0, horas: 0, periodo: pf.period }
+            existing: {
+              linhas: matchRecords.length,
+              horas: Math.round(currentHours * 100) / 100,
+              periodo: matchRecords[0]?.periodo || pf.period
+            }
           });
         } else {
           newFiles.push(pf);
@@ -2464,17 +2432,19 @@
         };
         showDuplicateModal(duplicateFiles);
       } else {
-        // Nenhuma duplicada: integra diretamente
+        // Nenhuma duplicada: integra diretamente e deduplica
+        const toAdd = [];
         newFiles.forEach(f => {
-          records.push(...f.records);
+          toAdd.push(...f.records);
           auditIssues.push(...f.auditIssues);
         });
+        records = deduplicateRecords([...records, ...toAdd]);
         saveRecordsToStorage();
         saveAuditToStorage();
         populateFilterSelects();
         applyFilters();
         renderAuditTable();
-        alert(`Sucesso! ${newFiles.length} planilha(s) importada(s) com sucesso.`);
+        alert(`Sucesso! ${newFiles.length} planilha(s) importada(s) com sucesso. Total na base: ${records.length} registros.`);
       }
     }
 
@@ -2522,20 +2492,27 @@
         return;
       }
 
+      const normalizeFn = (name) => String(name || '').replace(/\\/g, '/').split('/').pop().toLowerCase().trim();
       const { duplicateFiles, newFiles } = pendingUploadPayload;
 
       if (action === 'overwrite') {
-        // Remove os registros e auditorias das planilhas repetidas que serão substituídas
-        const duplicateNames = duplicateFiles.map(d => d.new.fileName.toLowerCase().trim());
-        records = records.filter(r => !duplicateNames.includes((r.arquivoFonte || '').toLowerCase().trim()));
-        auditIssues = auditIssues.filter(a => !duplicateNames.includes((a.arquivo || '').toLowerCase().trim()));
+        // Remove com precisão cirúrgica todos os registros anteriores pertencentes aos arquivos que estão sendo sobrescritos
+        const duplicateNames = duplicateFiles.map(d => normalizeFn(d.new.fileName));
+        records = records.filter(r => !duplicateNames.includes(normalizeFn(r.arquivoFonte)));
+        auditIssues = auditIssues.filter(a => !duplicateNames.includes(normalizeFn(a.arquivo)));
 
         // Adiciona as novas versões substituídas e arquivos inéditos
-        const allToAdd = [...newFiles, ...duplicateFiles.map(d => d.new)];
-        allToAdd.forEach(f => {
-          records.push(...f.records);
+        const allToAdd = [];
+        newFiles.forEach(f => {
+          allToAdd.push(...f.records);
           auditIssues.push(...f.auditIssues);
         });
+        duplicateFiles.forEach(d => {
+          allToAdd.push(...d.new.records);
+          auditIssues.push(...d.new.auditIssues);
+        });
+
+        records = deduplicateRecords([...records, ...allToAdd]);
 
         saveRecordsToStorage();
         saveAuditToStorage();
@@ -2543,20 +2520,23 @@
         applyFilters();
         renderAuditTable();
 
-        alert(`Sucesso! ${duplicateFiles.length} planilha(s) sobrescrita(s) com êxito${newFiles.length > 0 ? ` e ${newFiles.length} nova(s) planilha(s) adicionada(s)` : ''}. Total na base: ${records.length} registros.`);
+        const totalHoursNow = records.reduce((acc, r) => acc + (parseFloat(r.horas) || 0), 0);
+        alert(`Sucesso! ${duplicateFiles.length} planilha(s) sobrescrita(s) com êxito. Total na base: ${records.length} registros (${formatNumberBR(totalHoursNow)} h).`);
       } else if (action === 'skip') {
         // Ignora duplicadas e adiciona apenas arquivos inéditos
         if (newFiles.length > 0) {
+          const toAdd = [];
           newFiles.forEach(f => {
-            records.push(...f.records);
+            toAdd.push(...f.records);
             auditIssues.push(...f.auditIssues);
           });
+          records = deduplicateRecords([...records, ...toAdd]);
           saveRecordsToStorage();
           saveAuditToStorage();
           populateFilterSelects();
           applyFilters();
           renderAuditTable();
-          alert(`Processado! ${newFiles.length} nova(s) planilha(s) adicionada(s). As ${duplicateFiles.length} planilha(s) repetida(s) foram ignoradas e mantidas.`);
+          alert(`Processado! ${newFiles.length} nova(s) planilha(s) adicionada(s). As ${duplicateFiles.length} planilha(s) repetida(s) foram mantidas.`);
         } else {
           alert(`Nenhuma nova planilha a ser importada. As ${duplicateFiles.length} planilha(s) repetida(s) foram mantidas inalteradas.`);
         }
@@ -2601,7 +2581,7 @@
     }
 
     function restoreDefaultData() {
-      if (confirm('Deseja restaurar a base padrão exata de 2026 (20.646,38 h)?')) {
+      if (confirm('Deseja restaurar a base oficial de 2026 (1.837 registros | 17.070,38 h)?')) {
         records = [...DEFAULT_RECORDS];
         actionPlans = [...DEFAULT_ACTION_PLANS];
         auditIssues = [];
