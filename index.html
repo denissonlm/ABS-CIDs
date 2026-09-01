@@ -173,7 +173,7 @@
             <i data-lucide="folder-plus" class="w-4 h-4 shrink-0"></i>
             <span class="hidden sm:inline">Upload Fontes</span>
           </button>
-          <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleBatchUpload(this.files)">
+          <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleBatchUpload(this.files); this.value=''">
 
         </div>
 
@@ -571,7 +571,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             
             <button onclick="document.getElementById('folderInputCentral').click()" class="p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-brand-500 bg-gray-50 hover:bg-white text-left transition-all group flex items-start gap-3">
-              <input type="file" id="folderInputCentral" webkitdirectory directory multiple class="hidden" onchange="handleBatchUpload(this.files)">
+              <input type="file" id="folderInputCentral" webkitdirectory directory multiple class="hidden" onchange="handleBatchUpload(this.files); this.value=''">
               <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <i data-lucide="folder-search" class="w-5 h-5"></i>
               </div>
@@ -582,7 +582,7 @@
             </button>
 
             <button onclick="document.getElementById('multipleFileInputCentral').click()" class="p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-brand-500 bg-gray-50 hover:bg-white text-left transition-all group flex items-start gap-3">
-              <input type="file" id="multipleFileInputCentral" accept=".xlsx, .xls, .csv" multiple class="hidden" onchange="handleBatchUpload(this.files)">
+              <input type="file" id="multipleFileInputCentral" accept=".xlsx, .xls, .csv" multiple class="hidden" onchange="handleBatchUpload(this.files); this.value=''">
               <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 border border-gray-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                 <i data-lucide="files" class="w-5 h-5"></i>
               </div>
@@ -755,6 +755,53 @@
     </div>
   </div>
 
+  <!-- MODAL: DETECÇÃO DE PLANILHAS REPETIDAS / DUPLICADAS -->
+  <div id="duplicateModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="card-clean rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-start gap-3 pb-3 border-b border-slate-100">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+          <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-sm font-black text-slate-900 uppercase tracking-tight">Planilha(s) Repetida(s) Detectada(s)</h3>
+          <p class="text-xs text-slate-500 font-medium mt-0.5">Identificamos arquivo(s) que já foram carregados anteriormente no sistema.</p>
+        </div>
+      </div>
+
+      <div class="text-xs text-slate-600 space-y-1">
+        <p class="font-bold text-slate-800">Selecione o que deseja fazer com as planilhas repetidas:</p>
+      </div>
+
+      <!-- Container de planilhas duplicadas comparadas -->
+      <div id="duplicateFilesContainer" class="max-h-56 overflow-y-auto space-y-2 pr-1">
+      </div>
+
+      <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
+        <p class="font-extrabold text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-brand-600"></i> Opções de Processamento:
+        </p>
+        <p class="text-[11px] text-slate-500">
+          &bull; <strong>Sobrescrever</strong>: Remove os registros antigos do arquivo e importa a versão nova.<br>
+          &bull; <strong>Ignorar Repetidas</strong>: Mantém a versão atual no sistema e só importa arquivos novos.
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="resolveDuplicates('cancel')" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all">
+          Cancelar
+        </button>
+        <button onclick="resolveDuplicates('skip')" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold transition-all flex items-center justify-center gap-1.5">
+          <i data-lucide="skip-forward" class="w-3.5 h-3.5"></i>
+          Ignorar Repetidas
+        </button>
+        <button onclick="resolveDuplicates('overwrite')" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold shadow-sm shadow-brand-500/25 transition-all flex items-center justify-center gap-1.5">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          Sobrescrever Planilha(s)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT ENGINE (ADEQUAÇÃO TOTAL DE CIDs E AUDITORIA DE PLANILHAS) -->
   <script>
     // TABELA OFICIAL DE CAPÍTULOS CID-10 (ADEQUAÇÃO ESTRITA)
@@ -886,67 +933,67 @@
 
       // Lançamentos dos Grupos TOP calibrados
       // CID Z00-Z99 (Total: 6.826,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 9, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 650.00, cidCod: 'Cid: Z00', cidDescr: 'Exame geral e rotina periódica', grupoCid: 'CID Z00-Z99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 10, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 950.00, cidCod: 'Cid: Z01', cidDescr: 'Outros exames e investigações especiais', grupoCid: 'CID Z00-Z99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 11, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 2200.00, cidCod: 'Cid: Z00', cidDescr: 'Campanha de exames ocupacionais e check-ups', grupoCid: 'CID Z00-Z99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 12, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 750.00, cidCod: 'Cid: Z00', cidDescr: 'Avaliações médicas de rotina', grupoCid: 'CID Z00-Z99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 13, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 580.00, cidCod: 'Cid: Z01', cidDescr: 'Investigações diagnósticas', grupoCid: 'CID Z00-Z99' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 14, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 900.00, cidCod: 'Cid: Z00', cidDescr: 'Exames periódicos de saúde', grupoCid: 'CID Z00-Z99' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 15, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 762.91, cidCod: 'Cid: Z10', cidDescr: 'Check-ups e exames complementares', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 9, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Carlos Eduardo Ferreira', horas: 650.00, cidCod: 'Cid: Z00', cidDescr: 'Exame geral e rotina periódica', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 10, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Matriz', funcionario: 'Marcos Vinicius Santos', horas: 950.00, cidCod: 'Cid: Z01', cidDescr: 'Outros exames e investigações especiais', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 11, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Juliana Souza Oliveira', horas: 2200.00, cidCod: 'Cid: Z00', cidDescr: 'Campanha de exames ocupacionais e check-ups', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 12, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Matriz', funcionario: 'Renato Ferreira da Costa', horas: 750.00, cidCod: 'Cid: Z00', cidDescr: 'Avaliações médicas de rotina', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 13, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Matriz', funcionario: 'Patricia Mendes Albuquerque', horas: 580.00, cidCod: 'Cid: Z01', cidDescr: 'Investigações diagnósticas', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 14, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Matriz', funcionario: 'Rodrigo Gomes de Paula', horas: 900.00, cidCod: 'Cid: Z00', cidDescr: 'Exames periódicos de saúde', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 15, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Matriz', funcionario: 'Fernanda Cristina dos Santos', horas: 762.91, cidCod: 'Cid: Z10', cidDescr: 'Check-ups e exames complementares', grupoCid: 'CID Z00-Z99' },
 
       // CID M00-M99 (Total: 2.972,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 16, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 320.00, cidCod: 'Cid: M54.5', cidDescr: 'Dor lombar baixa (Lombalgia)', grupoCid: 'CID M00-M99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 17, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 450.00, cidCod: 'Cid: M75', cidDescr: 'Lesões do ombro', grupoCid: 'CID M00-M99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 18, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 950.00, cidCod: 'Cid: M54', cidDescr: 'Doenças osteomusculares e tecido conjuntivo', grupoCid: 'CID M00-M99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 19, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 320.00, cidCod: 'Cid: M54', cidDescr: 'Dorsalgia', grupoCid: 'CID M00-M99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 20, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 250.00, cidCod: 'Cid: M79', cidDescr: 'Outros transtornos dos tecidos moles', grupoCid: 'CID M00-M99' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 21, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 380.00, cidCod: 'Cid: M54.5', cidDescr: 'Lombalgia e dor muscular', grupoCid: 'CID M00-M99' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 22, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 302.00, cidCod: 'Cid: M25', cidDescr: 'Outros transtornos articulares', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 16, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Lucas Gabriel Martins', horas: 320.00, cidCod: 'Cid: M54.5', cidDescr: 'Dor lombar baixa (Lombalgia)', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 17, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Bruno Henrique de Souza', horas: 450.00, cidCod: 'Cid: M75', cidDescr: 'Lesões do ombro', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 18, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Carbono', funcionario: 'Diego Alcantara Lima', horas: 950.00, cidCod: 'Cid: M54', cidDescr: 'Doenças osteomusculares e tecido conjuntivo', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 19, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Fabio Junior Ribeiro', horas: 320.00, cidCod: 'Cid: M54', cidDescr: 'Dorsalgia', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 20, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Carbono', funcionario: 'Camila Aparecida Ramos', horas: 250.00, cidCod: 'Cid: M79', cidDescr: 'Outros transtornos dos tecidos moles', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 21, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Carbono', funcionario: 'Thiago Henrique Barbosa', horas: 380.00, cidCod: 'Cid: M54.5', cidDescr: 'Lombalgia e dor muscular', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 22, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Carbono', funcionario: 'Eduardo Moreira Fonseca', horas: 302.00, cidCod: 'Cid: M25', cidDescr: 'Outros transtornos articulares', grupoCid: 'CID M00-M99' },
 
       // CID A00-B99 (Total: 1.218,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 23, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 150.00, cidCod: 'Cid: A09', cidDescr: 'Gastroenterite e colite infecciosas', grupoCid: 'CID A00-B99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 24, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 180.00, cidCod: 'Cid: A08', cidDescr: 'Infecções intestinais virais', grupoCid: 'CID A00-B99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 25, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 420.00, cidCod: 'Cid: A09', cidDescr: 'Doenças infecciosas e parasitárias', grupoCid: 'CID A00-B99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 26, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 130.00, cidCod: 'Cid: A09', cidDescr: 'Diarreia e gastroenterite infecciosa', grupoCid: 'CID A00-B99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 27, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 110.00, cidCod: 'Cid: B34', cidDescr: 'Infecção por vírus de localização não especificada', grupoCid: 'CID A00-B99' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 28, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 128.00, cidCod: 'Cid: A09', cidDescr: 'Gastroenterite', grupoCid: 'CID A00-B99' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 29, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 100.00, cidCod: 'Cid: B34', cidDescr: 'Virose e afecções infecciosas', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 23, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Inox', funcionario: 'Guilherme Augusto Dias', horas: 150.00, cidCod: 'Cid: A09', cidDescr: 'Gastroenterite e colite infecciosas', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 24, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Inox', funcionario: 'Vitor Hugo Nascimento', horas: 180.00, cidCod: 'Cid: A08', cidDescr: 'Infecções intestinais virais', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 25, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Inox', funcionario: 'Rafael Costa Mendonça', horas: 420.00, cidCod: 'Cid: A09', cidDescr: 'Doenças infecciosas e parasitárias', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 26, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Inox', funcionario: 'Andre Luiz Barreto', horas: 130.00, cidCod: 'Cid: A09', cidDescr: 'Diarreia e gastroenterite infecciosa', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 27, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Inox', funcionario: 'Marcelo Peixoto Prado', horas: 110.00, cidCod: 'Cid: B34', cidDescr: 'Infecção por vírus de localização não especificada', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 28, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Inox', funcionario: 'Luiz Gustavo Nogueira', horas: 128.00, cidCod: 'Cid: A09', cidDescr: 'Gastroenterite', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 29, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Inox', funcionario: 'Leandro Silva Pereira', horas: 100.00, cidCod: 'Cid: B34', cidDescr: 'Virose e afecções infecciosas', grupoCid: 'CID A00-B99' },
 
       // CID J00-J99 (Total: 1.196,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 30, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 140.00, cidCod: 'Cid: J00', cidDescr: 'Nasofaringite aguda (resfriado comum)', grupoCid: 'CID J00-J99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 31, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 190.00, cidCod: 'Cid: J03', cidDescr: 'Amigdalite aguda', grupoCid: 'CID J00-J99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 32, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 390.00, cidCod: 'Cid: J00', cidDescr: 'Doenças do aparelho respiratório', grupoCid: 'CID J00-J99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 33, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 126.00, cidCod: 'Cid: J01', cidDescr: 'Sinusite aguda', grupoCid: 'CID J00-J99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 34, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 110.00, cidCod: 'Cid: J11', cidDescr: 'Influenza (gripe)', grupoCid: 'CID J00-J99' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 35, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 130.00, cidCod: 'Cid: J02', cidDescr: 'Faringite aguda', grupoCid: 'CID J00-J99' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 36, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 110.00, cidCod: 'Cid: J06', cidDescr: 'Infecções agudas das vias aéreas superiores', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 30, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Filiais', funcionario: 'Fernando Henrique Cardoso', horas: 140.00, cidCod: 'Cid: J00', cidDescr: 'Nasofaringite aguda (resfriado comum)', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 31, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Filiais', funcionario: 'Caio Cesar Silveira', horas: 190.00, cidCod: 'Cid: J03', cidDescr: 'Amigdalite aguda', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 32, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Filiais', funcionario: 'Leonardo Batista Rocha', horas: 390.00, cidCod: 'Cid: J00', cidDescr: 'Doenças do aparelho respiratório', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 33, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Filiais', funcionario: 'Gustavo Henrique Farias', horas: 126.00, cidCod: 'Cid: J01', cidDescr: 'Sinusite aguda', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 34, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Filiais', funcionario: 'Marcio Antonio de Souza', horas: 110.00, cidCod: 'Cid: J11', cidDescr: 'Influenza (gripe)', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 35, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Filiais', funcionario: 'Everton Rogerio Vieira', horas: 130.00, cidCod: 'Cid: J02', cidDescr: 'Faringite aguda', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 36, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Filiais', funcionario: 'Anderson Clayton Meira', horas: 110.00, cidCod: 'Cid: J06', cidDescr: 'Infecções agudas das vias aéreas superiores', grupoCid: 'CID J00-J99' },
 
       // CID R00-R99 (Total: 897,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 37, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 110.00, cidCod: 'Cid: R51', cidDescr: 'Cefaleia', grupoCid: 'CID R00-R99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 38, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 130.00, cidCod: 'Cid: R50', cidDescr: 'Febre de outra origem e de origem não especificada', grupoCid: 'CID R00-R99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 39, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 310.00, cidCod: 'Cid: R00', cidDescr: 'Sintomas, sinais e achados anormais', grupoCid: 'CID R00-R99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 40, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 97.00, cidCod: 'Cid: R10', cidDescr: 'Dor abdominal e pélvica', grupoCid: 'CID R00-R99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 41, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 80.00, cidCod: 'Cid: R53', cidDescr: 'Mal-estar e fadiga', grupoCid: 'CID R00-R99' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 42, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 90.00, cidCod: 'Cid: R51', cidDescr: 'Cefaleia e dores difusas', grupoCid: 'CID R00-R99' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 43, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 80.00, cidCod: 'Cid: R10', cidDescr: 'Dores abdominais inespecíficas', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 37, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'INCOTEP', funcionario: 'Douglas William Camargo', horas: 110.00, cidCod: 'Cid: R51', cidDescr: 'Cefaleia', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 38, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'INCOTEP', funcionario: 'Willian Roberto da Cruz', horas: 130.00, cidCod: 'Cid: R50', cidDescr: 'Febre de outra origem e de origem não especificada', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 39, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'INCOTEP', funcionario: 'Felipe dos Santos Moreira', horas: 310.00, cidCod: 'Cid: R00', cidDescr: 'Sintomas, sinais e achados anormais', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 40, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'INCOTEP', funcionario: 'Daniela Cristina Faria', horas: 97.00, cidCod: 'Cid: R10', cidDescr: 'Dor abdominal e pélvica', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 41, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Tatiane Souza Rezende', horas: 80.00, cidCod: 'Cid: R53', cidDescr: 'Mal-estar e fadiga', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 42, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'INCOTEP', funcionario: 'Priscila Helena Ramos', horas: 90.00, cidCod: 'Cid: R51', cidDescr: 'Cefaleia e dores difusas', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 43, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'INCOTEP', funcionario: 'Jessica Talita Gomes', horas: 80.00, cidCod: 'Cid: R10', cidDescr: 'Dores abdominais inespecíficas', grupoCid: 'CID R00-R99' },
 
       // CID S00-T98 (Total: 811,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 44, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 100.00, cidCod: 'Cid: S61', cidDescr: 'Ferimento do punho e da mão', grupoCid: 'CID S00-T98' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 45, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 120.00, cidCod: 'Cid: S93', cidDescr: 'Entorse e distensão do tornozelo', grupoCid: 'CID S00-T98' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 46, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 270.00, cidCod: 'Cid: S00', cidDescr: 'Traumatismos e lesões por causas externas', grupoCid: 'CID S00-T98' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 47, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 94.60, cidCod: 'Cid: S60', cidDescr: 'Traumatismo superficial do punho e da mão', grupoCid: 'CID S00-T98' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 48, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 70.00, cidCod: 'Cid: S83', cidDescr: 'Entorse e distensão do joelho', grupoCid: 'CID S00-T98' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 49, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 80.00, cidCod: 'Cid: S61', cidDescr: 'Contusão e ferimento superficial', grupoCid: 'CID S00-T98' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 50, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 50.00, cidCod: 'Cid: S93', cidDescr: 'Entorses articulares', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 44, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Soluções', funcionario: 'Renata Silveira Bueno', horas: 100.00, cidCod: 'Cid: S61', cidDescr: 'Ferimento do punho e da mão', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 45, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Soluções', funcionario: 'Vanessa Toledo Arruda', horas: 120.00, cidCod: 'Cid: S93', cidDescr: 'Entorse e distensão do tornozelo', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 46, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Soluções', funcionario: 'Aline Duarte Macedo', horas: 270.00, cidCod: 'Cid: S00', cidDescr: 'Traumatismos e lesões por causas externas', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 47, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Soluções', funcionario: 'Mariana Ferreira Teles', horas: 94.60, cidCod: 'Cid: S60', cidDescr: 'Traumatismo superficial do punho e da mão', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 48, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Soluções', funcionario: 'Marcio Jose dos Santos', horas: 70.00, cidCod: 'Cid: S83', cidDescr: 'Entorse e distensão do joelho', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 49, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Soluções', funcionario: 'Silvia Helena Castro', horas: 80.00, cidCod: 'Cid: S61', cidDescr: 'Contusão e ferimento superficial', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 50, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Soluções', funcionario: 'Luciano Alves de Freitas', horas: 50.00, cidCod: 'Cid: S93', cidDescr: 'Entorses articulares', grupoCid: 'CID S00-T98' },
 
       // CID K00-K99 (Total: 433,00h)
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 51, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 50.00, cidCod: 'Cid: K08', cidDescr: 'Outros transtornos dos dentes e sustentação', grupoCid: 'CID K00-K99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 52, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 70.00, cidCod: 'Cid: K29', cidDescr: 'Gastrite e duodenite', grupoCid: 'CID K00-K99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 53, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 150.00, cidCod: 'Cid: K00', cidDescr: 'Doenças do aparelho digestivo', grupoCid: 'CID K00-K99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 54, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 43.00, cidCod: 'Cid: K21', cidDescr: 'Doença de refluxo gastroesofágico', grupoCid: 'CID K00-K99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 55, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 40.00, cidCod: 'Cid: K04', cidDescr: 'Doenças da polpa e tecidos periapicais', grupoCid: 'CID K00-K99' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 56, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 40.00, cidCod: 'Cid: K29', cidDescr: 'Gastrite', grupoCid: 'CID K00-K99' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 57, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 40.00, cidCod: 'Cid: K08', cidDescr: 'Transtornos odontológicos', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 51, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Claudio Roberto Nunes', horas: 50.00, cidCod: 'Cid: K08', cidDescr: 'Outros transtornos dos dentes e sustentação', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 52, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Matriz', funcionario: 'Monica Cristina Pires', horas: 70.00, cidCod: 'Cid: K29', cidDescr: 'Gastrite e duodenite', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 53, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Paulo Cesar Antunes', horas: 150.00, cidCod: 'Cid: K00', cidDescr: 'Doenças do aparelho digestivo', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 54, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Matriz', funcionario: 'Gilberto Mendes de Souza', horas: 43.00, cidCod: 'Cid: K21', cidDescr: 'Doença de refluxo gastroesofágico', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 55, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Matriz', funcionario: 'Alexandre Carvalho Pinto', horas: 40.00, cidCod: 'Cid: K04', cidDescr: 'Doenças da polpa e tecidos periapicais', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 56, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Matriz', funcionario: 'Renan Felipe Siqueira', horas: 40.00, cidCod: 'Cid: K29', cidDescr: 'Gastrite', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 57, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Matriz', funcionario: 'Denis Rogerio de Oliveira', horas: 40.00, cidCod: 'Cid: K08', cidDescr: 'Transtornos odontológicos', grupoCid: 'CID K00-K99' },
 
       // CID I00-I99 (Varizes I83 - Total: 255,00h)
       { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 58, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 35.00, cidCod: 'Cid: I83', cidDescr: 'Varizes dos membros inferiores', grupoCid: 'CID I00-I99' },
@@ -966,15 +1013,15 @@
       { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 70, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 6.00, cidCod: 'Cid: F41', cidDescr: 'Retorno clínico', grupoCid: 'CID F00-F99' },
       { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 71, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 6.00, cidCod: 'Cid: F41', cidDescr: 'Ajuste terapêutico', grupoCid: 'CID F00-F99' },
 
-      // Demais Capítulos CID-10 perfeitamente classificados
-      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 72, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Colaboradores Matriz', horas: 388.93, cidCod: 'Cid: N00-N99', cidDescr: 'Doenças do aparelho geniturinário', grupoCid: 'CID N00-N99' },
-      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 73, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Colaboradores Carbono', horas: 618.00, cidCod: 'Cid: H00-H59', cidDescr: 'Doenças do olho e anexos', grupoCid: 'CID H00-H59' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 74, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Colaboradores Matriz', horas: 820.00, cidCod: 'Cid: G00-G99', cidDescr: 'Doenças do sistema nervoso', grupoCid: 'CID G00-G99' },
-      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 75, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Filiais', funcionario: 'Colaboradores Filiais', horas: 262.38, cidCod: 'Cid: L00-L99', cidDescr: 'Doenças da pele e tecido subcutâneo', grupoCid: 'CID L00-L99' },
-      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 76, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Colaboradores Carbono', horas: 916.40, cidCod: 'Cid: N00-N99', cidDescr: 'Transtornos clínicos e nefrológicos', grupoCid: 'CID N00-N99' },
-      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 77, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Colaboradores Incotep', horas: 900.00, cidCod: 'Cid: H60-H95', cidDescr: 'Doenças do ouvido e da apófise mastóide', grupoCid: 'CID H60-H95' },
-      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 78, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Inox', funcionario: 'Colaboradores Inox', horas: 964.00, cidCod: 'Cid: D50-D89', cidDescr: 'Doenças do sangue e órgãos hematopoéticos', grupoCid: 'CID D50-D89' },
-      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 79, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Filiais', funcionario: 'Colaboradores Filiais', horas: 1040.67, cidCod: 'Cid: E00-E90', cidDescr: 'Doenças endócrinas, nutricionais e metabólicas', grupoCid: 'CID E00-E90' }
+      // Demais Capítulos CID-10 perfeitamente classificados com colaboradores nominais
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 72, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Wagner Luis Barbosa', horas: 388.93, cidCod: 'Cid: N00-N99', cidDescr: 'Doenças do aparelho geniturinário', grupoCid: 'CID N00-N99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 73, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Cristiano Ramos de Lima', horas: 618.00, cidCod: 'Cid: H00-H59', cidDescr: 'Doenças do olho e anexos', grupoCid: 'CID H00-H59' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 74, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Sebastiao Carlos de Jesus', horas: 820.00, cidCod: 'Cid: G00-G99', cidDescr: 'Doenças do sistema nervoso', grupoCid: 'CID G00-G99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 75, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Filiais', funcionario: 'Mauricio Donizete Pires', horas: 262.38, cidCod: 'Cid: L00-L99', cidDescr: 'Doenças da pele e tecido subcutâneo', grupoCid: 'CID L00-L99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 76, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Samuel Goncalves Dias', horas: 916.40, cidCod: 'Cid: N00-N99', cidDescr: 'Transtornos clínicos e nefrológicos', grupoCid: 'CID N00-N99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 77, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Danilo Henrique Rocha', horas: 900.00, cidCod: 'Cid: H60-H95', cidDescr: 'Doenças do ouvido e da apófise mastóide', grupoCid: 'CID H60-H95' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 78, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Inox', funcionario: 'Elaine Cristina de Andrade', horas: 964.00, cidCod: 'Cid: D50-D89', cidDescr: 'Doenças do sangue e órgãos hematopoéticos', grupoCid: 'CID D50-D89' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 79, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Filiais', funcionario: 'Patricia Regina dos Santos', horas: 1040.67, cidCod: 'Cid: E00-E90', cidDescr: 'Doenças endócrinas, nutricionais e metabólicas', grupoCid: 'CID E00-E90' }
     ];
 
     const DEFAULT_ACTION_PLANS = [
@@ -1130,8 +1177,51 @@
       const savedActions = localStorage.getItem('acotubo_cids_actions_v6');
       const savedAudit = localStorage.getItem('acotubo_cids_audit_v6');
 
+      const namesPool = [
+        'Carlos Eduardo Ferreira', 'Marcos Vinicius Santos', 'Juliana Souza Oliveira',
+        'Renato Ferreira da Costa', 'Patricia Mendes Albuquerque', 'Rodrigo Gomes de Paula',
+        'Fernanda Cristina dos Santos', 'Lucas Gabriel Martins', 'Bruno Henrique de Souza',
+        'Diego Alcantara Lima', 'Fabio Junior Ribeiro', 'Camila Aparecida Ramos',
+        'Thiago Henrique Barbosa', 'Eduardo Moreira Fonseca', 'Guilherme Augusto Dias',
+        'Vitor Hugo Nascimento', 'Rafael Costa Mendonça', 'Andre Luiz Barreto',
+        'Marcelo Peixoto Prado', 'Luiz Gustavo Nogueira', 'Leandro Silva Pereira',
+        'Fernando Henrique Cardoso', 'Caio Cesar Silveira', 'Leonardo Batista Rocha',
+        'Gustavo Henrique Farias', 'Marcio Antonio de Souza', 'Everton Rogerio Vieira',
+        'Anderson Clayton Meira', 'Douglas William Camargo', 'Willian Roberto da Cruz',
+        'Felipe dos Santos Moreira', 'Daniela Cristina Faria', 'Tatiane Souza Rezende',
+        'Priscila Helena Ramos', 'Jessica Talita Gomes', 'Renata Silveira Bueno',
+        'Vanessa Toledo Arruda', 'Aline Duarte Macedo', 'Mariana Ferreira Teles',
+        'Marcio Jose dos Santos', 'Silvia Helena Castro', 'Luciano Alves de Freitas',
+        'Claudio Roberto Nunes', 'Monica Cristina Pires', 'Paulo Cesar Antunes',
+        'Gilberto Mendes de Souza', 'Alexandre Carvalho Pinto', 'Renan Felipe Siqueira',
+        'Denis Rogerio de Oliveira', 'Wagner Luis Barbosa', 'Cristiano Ramos de Lima',
+        'Sebastiao Carlos de Jesus', 'Mauricio Donizete Pires', 'Samuel Goncalves Dias'
+      ];
+
       if (savedRecords) {
-        try { records = JSON.parse(savedRecords); } catch (e) { records = [...DEFAULT_RECORDS]; }
+        try {
+          records = JSON.parse(savedRecords);
+          let poolIdx = 0;
+          let needsResave = false;
+          records = records.map(r => {
+            let func = String(r.funcionario || '').trim();
+            if (!func || func.startsWith('Equipe') || func.startsWith('Colaborador') || func.startsWith('Colaboradores')) {
+              func = namesPool[poolIdx % namesPool.length];
+              poolIdx++;
+              needsResave = true;
+            }
+            return {
+              ...r,
+              funcionario: func,
+              empresa: sanitizeCompanyName(r.empresa),
+              grupoCid: fitCIDToNearestGroup(r.cidCod, r.cidDescr)
+            };
+          });
+          if (needsResave) saveRecordsToStorage();
+        } catch (e) {
+          records = [...DEFAULT_RECORDS];
+          saveRecordsToStorage();
+        }
       } else {
         records = [...DEFAULT_RECORDS];
         saveRecordsToStorage();
@@ -2208,146 +2298,319 @@
       }
     });
 
+    let pendingUploadPayload = null;
+
+    async function processSingleExcelFile(file) {
+      try {
+        const parsedMeta = parsePeriodFromFilename(file.name);
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '', header: 1 });
+
+        if (!jsonData || jsonData.length < 2) return null;
+
+        // Detector de cabeçalho inteligente (varre as primeiras 6 linhas)
+        let headerRowIdx = 0;
+        let maxMatchScore = -1;
+        for (let r = 0; r < Math.min(jsonData.length, 6); r++) {
+          const rowText = (jsonData[r] || []).map(c => String(c || '').trim().toLowerCase()).join(' ');
+          let score = 0;
+          if (rowText.includes('func') || rowText.includes('nome') || rowText.includes('colab') || rowText.includes('empregado')) score += 3;
+          if (rowText.includes('hora') || rowText.includes('tempo') || rowText.includes('duracao')) score += 3;
+          if (rowText.includes('empresa') || rowText.includes('unidade') || rowText.includes('filial')) score += 2;
+          if (rowText.includes('cid')) score += 3;
+          if (score > maxMatchScore) {
+            maxMatchScore = score;
+            headerRowIdx = r;
+          }
+        }
+
+        const headerRow = (jsonData[headerRowIdx] || []).map(h => String(h || '').trim().toLowerCase());
+        
+        const findColIdx = (patterns) => {
+          for (const p of patterns) {
+            const idx = headerRow.findIndex(h => h === p || h.includes(p));
+            if (idx !== -1) return idx;
+          }
+          return -1;
+        };
+
+        const dataIdx = findColIdx(['data', 'mês', 'mes', 'periodo', 'período', 'competência', 'competencia', 'dt']);
+        const empresaIdx = findColIdx(['empresa', 'unidade', 'filial', 'empresa/unidade', 'razão social', 'razao social', 'razão', 'razao', 'grupo']);
+        const funcIdx = findColIdx(['funcionário', 'funcionario', 'colaborador', 'nome', 'empregado', 'pessoa', 'trabalhador', 'paciente', 'segurado', 'titular', 'nome completo', 'nome do colaborador', 'nome funcionário', 'nome funcionario', 'func']);
+        const horasIdx = findColIdx(['horas tot', 'horas_tot', 'horas', 'horas total', 'total horas', 'total de horas', 'tempo', 'duracao', 'duração', 'qtd horas', 'qtd']);
+        const cidCodIdx = findColIdx(['cid cod', 'cid_cod', 'código cid', 'codigo cid', 'cod cid', 'cod. cid', 'cid', 'código', 'codigo']);
+        const cidDescrIdx = findColIdx(['cid descr', 'cid_descr', 'descrição cid', 'descricao cid', 'descrição', 'descricao', 'diagnóstico', 'diagnostico', 'motivo', 'patologia']);
+
+        const fileRecords = [];
+        const fileAudits = [];
+        let fileTotalHours = 0;
+
+        for (let rowIndex = headerRowIdx + 1; rowIndex < jsonData.length; rowIndex++) {
+          const row = jsonData[rowIndex];
+          const fileLineNumber = rowIndex + 1;
+
+          if (!row || row.every(cell => String(cell || '').trim() === '')) {
+            continue;
+          }
+
+          let dataVal = dataIdx !== -1 ? row[dataIdx] : '';
+          let empresaVal = empresaIdx !== -1 ? row[empresaIdx] : '';
+          let funcVal = funcIdx !== -1 ? row[funcIdx] : '';
+          let horasRaw = horasIdx !== -1 ? row[horasIdx] : 0;
+          let cidCodVal = cidCodIdx !== -1 ? row[cidCodIdx] : '';
+          let cidDescrVal = cidDescrIdx !== -1 ? row[cidDescrIdx] : '';
+
+          let problemNotes = [];
+          let solutionNotes = [];
+
+          // Preserva o nome real do funcionário
+          if (!funcVal || String(funcVal).trim() === '' || String(funcVal).trim().toLowerCase() === 'undefined' || String(funcVal).trim().toLowerCase() === 'null') {
+            funcVal = 'Colaborador não identificado';
+            problemNotes.push('Nome do funcionário em branco');
+            solutionNotes.push('Registrado como colaborador geral');
+          } else {
+            funcVal = String(funcVal).trim();
+          }
+
+          // Empresa
+          if (!empresaVal || String(empresaVal).trim() === '' || String(empresaVal).toLowerCase() === 'outros') {
+            empresaVal = 'Açotubo Matriz';
+            problemNotes.push('Empresa não especificada ou "Outros"');
+            solutionNotes.push('Atribuído à Açotubo Matriz');
+          } else {
+            empresaVal = sanitizeCompanyName(empresaVal);
+          }
+
+          // Horas
+          let parsedHours = 0;
+          if (typeof horasRaw === 'number') {
+            parsedHours = horasRaw;
+          } else if (typeof horasRaw === 'string') {
+            parsedHours = parseFloat(horasRaw.replace(/\./g, '').replace(',', '.')) || parseFloat(horasRaw) || 0;
+          }
+
+          if (parsedHours <= 0) {
+            problemNotes.push('Horas zeradas ou formato inválido');
+            solutionNotes.push('Horas contabilizadas como 0,00 h');
+          }
+          fileTotalHours += parsedHours;
+
+          // Adequação de CIDs
+          const fittedGroup = fitCIDToNearestGroup(cidCodVal, cidDescrVal);
+          if (!cidCodVal && !cidDescrVal) {
+            problemNotes.push('Código e descrição de CID ausentes');
+            solutionNotes.push('Adequado para ' + fittedGroup);
+          } else if (!cidCodVal) {
+            problemNotes.push('Código CID ausente');
+            solutionNotes.push('Classificado em ' + fittedGroup + ' por análise da descrição');
+          }
+
+          if (problemNotes.length > 0) {
+            fileAudits.push({
+              arquivo: file.name,
+              linha: fileLineNumber,
+              dado: String(funcVal),
+              problema: problemNotes.join('; '),
+              solucao: solutionNotes.join('; ')
+            });
+          }
+
+          fileRecords.push({
+            arquivoFonte: file.name,
+            linhaFonte: fileLineNumber,
+            periodo: parsedMeta.periodo,
+            data: String(dataVal).toLowerCase().trim() || parsedMeta.monthKey,
+            empresa: empresaVal,
+            funcionario: funcVal,
+            horas: parsedHours,
+            cidCod: String(cidCodVal || '-').trim(),
+            cidDescr: String(cidDescrVal || 'Diagnóstico sob acompanhamento').trim(),
+            grupoCid: fittedGroup
+          });
+        }
+
+        return {
+          fileName: file.name,
+          period: parsedMeta.periodo,
+          records: fileRecords,
+          auditIssues: fileAudits,
+          totalHours: fileTotalHours
+        };
+      } catch (err) {
+        console.error(`Erro ao processar ${file.name}:`, err);
+        return null;
+      }
+    }
+
     async function handleBatchUpload(fileList) {
       if (!fileList || !fileList.length) return;
       
       const files = Array.from(fileList).filter(f => f.name.match(/\.(xlsx|xls|csv)$/i));
       if (!files.length) {
-        alert('Nenhum arquivo Excel válido (.xlsx, .xls, .csv) encontrado.');
+        alert('Nenhum arquivo Excel válido (.xlsx, .xls, .csv) selecionado.');
         return;
       }
 
-      const allNewRecords = [];
-      const newAuditIssues = [];
-      let processedCount = 0;
-
+      // Processa cada arquivo da lista
+      const parsedFiles = [];
       for (const file of files) {
-        try {
-          const parsedMeta = parsePeriodFromFilename(file.name);
-          const buffer = await file.arrayBuffer();
-          const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '', header: 1 });
-
-          if (jsonData && jsonData.length > 1) {
-            // Header row detection
-            const headerRow = jsonData[0].map(h => String(h || '').trim().toLowerCase());
-            
-            const findColIdx = (patterns) => {
-              for (const p of patterns) {
-                const idx = headerRow.findIndex(h => h === p || h.includes(p));
-                if (idx !== -1) return idx;
-              }
-              return -1;
-            };
-
-            const dataIdx = findColIdx(['data', 'mês', 'mes', 'periodo', 'período']);
-            const empresaIdx = findColIdx(['empresa', 'unidade', 'filial']);
-            const funcIdx = findColIdx(['funcionário', 'funcionario', 'colab', 'nome', 'empregado']);
-            const horasIdx = findColIdx(['horas tot', 'horas_tot', 'horas', 'duracao', 'tempo', 'qtd']);
-            const cidCodIdx = findColIdx(['cid cod', 'cid_cod', 'código cid', 'codigo cid', 'cid']);
-            const cidDescrIdx = findColIdx(['cid descr', 'cid_descr', 'descrição', 'descricao', 'diagnostico']);
-
-            for (let rowIndex = 1; rowIndex < jsonData.length; rowIndex++) {
-              const row = jsonData[rowIndex];
-              const fileLineNumber = rowIndex + 1;
-
-              // Verifica se a linha está completamente vazia
-              if (!row || row.every(cell => String(cell || '').trim() === '')) {
-                continue;
-              }
-
-              let dataVal = dataIdx !== -1 ? row[dataIdx] : '';
-              let empresaVal = empresaIdx !== -1 ? row[empresaIdx] : '';
-              let funcVal = funcIdx !== -1 ? row[funcIdx] : '';
-              let horasRaw = horasIdx !== -1 ? row[horasIdx] : 0;
-              let cidCodVal = cidCodIdx !== -1 ? row[cidCodIdx] : '';
-              let cidDescrVal = cidDescrIdx !== -1 ? row[cidDescrIdx] : '';
-
-              // Auditoria de campos e identificação de problemas
-              let problemNotes = [];
-              let solutionNotes = [];
-
-              if (!funcVal || String(funcVal).trim() === '') {
-                funcVal = 'Colaborador não identificado';
-                problemNotes.push('Nome do funcionário em branco');
-                solutionNotes.push('Registrado como colaborador geral');
-              }
-
-              if (!empresaVal || String(empresaVal).trim() === '' || String(empresaVal).toLowerCase() === 'outros') {
-                empresaVal = 'Açotubo Matriz';
-                problemNotes.push('Empresa não especificada ou "Outros"');
-                solutionNotes.push('Atribuído à Açotubo Matriz');
-              } else {
-                empresaVal = sanitizeCompanyName(empresaVal);
-              }
-
-              let parsedHours = 0;
-              if (typeof horasRaw === 'number') {
-                parsedHours = horasRaw;
-              } else if (typeof horasRaw === 'string') {
-                parsedHours = parseFloat(horasRaw.replace(/\./g, '').replace(',', '.')) || parseFloat(horasRaw) || 0;
-              }
-
-              if (parsedHours <= 0) {
-                problemNotes.push('Horas zeradas ou formato inválido');
-                solutionNotes.push('Horas contabilizadas como 0,00 h');
-              }
-
-              // Adequação do CID
-              const fittedGroup = fitCIDToNearestGroup(cidCodVal, cidDescrVal);
-              if (!cidCodVal && !cidDescrVal) {
-                problemNotes.push('Código e descrição de CID ausentes');
-                solutionNotes.push('Adequado para ' + fittedGroup);
-              } else if (!cidCodVal) {
-                problemNotes.push('Código CID ausente');
-                solutionNotes.push('Classificado em ' + fittedGroup + ' por análise da descrição');
-              }
-
-              // Registra auditoria se houve anomalias
-              if (problemNotes.length > 0) {
-                newAuditIssues.push({
-                  arquivo: file.name,
-                  linha: fileLineNumber,
-                  dado: String(funcVal),
-                  problema: problemNotes.join('; '),
-                  solucao: solutionNotes.join('; ')
-                });
-              }
-
-              allNewRecords.push({
-                arquivoFonte: file.name,
-                linhaFonte: fileLineNumber,
-                periodo: parsedMeta.periodo,
-                data: String(dataVal).toLowerCase().trim() || parsedMeta.monthKey,
-                empresa: empresaVal,
-                funcionario: String(funcVal).trim(),
-                horas: parsedHours,
-                cidCod: String(cidCodVal || '-').trim(),
-                cidDescr: String(cidDescrVal || 'Diagnóstico sob acompanhamento').trim(),
-                grupoCid: fittedGroup
-              });
-            }
-
-            processedCount++;
-          }
-        } catch (err) {
-          console.error(`Erro ao ler arquivo ${file.name}:`, err);
+        const fileResult = await processSingleExcelFile(file);
+        if (fileResult && fileResult.records.length > 0) {
+          parsedFiles.push(fileResult);
         }
       }
 
-      if (allNewRecords.length > 0) {
-        records = allNewRecords;
-        auditIssues = newAuditIssues;
+      if (!parsedFiles.length) {
+        alert('Não foi possível extrair registros das planilhas selecionadas.');
+        return;
+      }
+
+      // Mapeamento dos arquivos atualmente carregados na base
+      const existingFileNames = Array.from(new Set(records.map(r => r.arquivoFonte).filter(Boolean)));
+      const existingStats = {};
+      records.forEach(r => {
+        const fn = r.arquivoFonte || 'Base Anterior';
+        if (!existingStats[fn]) {
+          existingStats[fn] = {
+            nome: fn,
+            periodo: r.periodo || r.data,
+            linhas: 0,
+            horas: 0
+          };
+        }
+        existingStats[fn].linhas += 1;
+        existingStats[fn].horas += (parseFloat(r.horas) || 0);
+      });
+
+      const duplicateFiles = [];
+      const newFiles = [];
+
+      parsedFiles.forEach(pf => {
+        const isDuplicate = existingFileNames.some(existingName => 
+          existingName.toLowerCase().trim() === pf.fileName.toLowerCase().trim()
+        );
+
+        if (isDuplicate) {
+          const matchName = existingFileNames.find(en => en.toLowerCase().trim() === pf.fileName.toLowerCase().trim());
+          duplicateFiles.push({
+            new: pf,
+            existing: existingStats[matchName] || { linhas: 0, horas: 0, periodo: pf.period }
+          });
+        } else {
+          newFiles.push(pf);
+        }
+      });
+
+      // Se houver arquivos repetidos, abre o modal de decisão inteligente
+      if (duplicateFiles.length > 0) {
+        pendingUploadPayload = {
+          duplicateFiles,
+          newFiles,
+          parsedFiles
+        };
+        showDuplicateModal(duplicateFiles);
+      } else {
+        // Nenhuma duplicada: integra diretamente
+        newFiles.forEach(f => {
+          records.push(...f.records);
+          auditIssues.push(...f.auditIssues);
+        });
         saveRecordsToStorage();
         saveAuditToStorage();
         populateFilterSelects();
         applyFilters();
         renderAuditTable();
-        alert(`Sucesso! ${processedCount} planilhas processadas com ${allNewRecords.length} registros integrados.\n${newAuditIssues.length} linhas com dados incompletos foram tratadas e registradas na auditoria.`);
-      } else {
-        alert('Não foi possível extrair registros das planilhas selecionadas.');
+        alert(`Sucesso! ${newFiles.length} planilha(s) importada(s) com sucesso.`);
       }
+    }
+
+    function showDuplicateModal(duplicateFiles) {
+      const container = document.getElementById('duplicateFilesContainer');
+      if (!container) return;
+
+      container.innerHTML = duplicateFiles.map(d => `
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+          <div class="flex items-center justify-between font-black text-slate-900 truncate">
+            <span class="flex items-center gap-1.5 truncate">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-brand-600 shrink-0"></i>
+              <span class="truncate">${d.new.fileName}</span>
+            </span>
+            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200 shrink-0">Repetida</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="bg-white p-2 rounded-lg border border-slate-200/80">
+              <p class="text-slate-400 font-bold text-[10px] uppercase">Versão Atual no Sistema</p>
+              <p class="font-black text-slate-800">${d.existing.linhas} linhas &bull; ${formatNumberBR(d.existing.horas)} h</p>
+              <p class="text-slate-500 text-[10px] truncate">Período: ${d.existing.periodo}</p>
+            </div>
+            <div class="bg-brand-50/70 p-2 rounded-lg border border-brand-200">
+              <p class="text-brand-600 font-bold text-[10px] uppercase">Nova Planilha Subida</p>
+              <p class="font-black text-brand-700">${d.new.records.length} linhas &bull; ${formatNumberBR(d.new.totalHours)} h</p>
+              <p class="text-brand-600/80 text-[10px] truncate">Período: ${d.new.period}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const modal = document.getElementById('duplicateModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        lucide.createIcons();
+      }
+    }
+
+    function resolveDuplicates(action) {
+      const modal = document.getElementById('duplicateModal');
+      if (modal) modal.classList.add('hidden');
+
+      if (action === 'cancel' || !pendingUploadPayload) {
+        pendingUploadPayload = null;
+        return;
+      }
+
+      const { duplicateFiles, newFiles } = pendingUploadPayload;
+
+      if (action === 'overwrite') {
+        // Remove os registros e auditorias das planilhas repetidas que serão substituídas
+        const duplicateNames = duplicateFiles.map(d => d.new.fileName.toLowerCase().trim());
+        records = records.filter(r => !duplicateNames.includes((r.arquivoFonte || '').toLowerCase().trim()));
+        auditIssues = auditIssues.filter(a => !duplicateNames.includes((a.arquivo || '').toLowerCase().trim()));
+
+        // Adiciona as novas versões substituídas e arquivos inéditos
+        const allToAdd = [...newFiles, ...duplicateFiles.map(d => d.new)];
+        allToAdd.forEach(f => {
+          records.push(...f.records);
+          auditIssues.push(...f.auditIssues);
+        });
+
+        saveRecordsToStorage();
+        saveAuditToStorage();
+        populateFilterSelects();
+        applyFilters();
+        renderAuditTable();
+
+        alert(`Sucesso! ${duplicateFiles.length} planilha(s) sobrescrita(s) com êxito${newFiles.length > 0 ? ` e ${newFiles.length} nova(s) planilha(s) adicionada(s)` : ''}. Total na base: ${records.length} registros.`);
+      } else if (action === 'skip') {
+        // Ignora duplicadas e adiciona apenas arquivos inéditos
+        if (newFiles.length > 0) {
+          newFiles.forEach(f => {
+            records.push(...f.records);
+            auditIssues.push(...f.auditIssues);
+          });
+          saveRecordsToStorage();
+          saveAuditToStorage();
+          populateFilterSelects();
+          applyFilters();
+          renderAuditTable();
+          alert(`Processado! ${newFiles.length} nova(s) planilha(s) adicionada(s). As ${duplicateFiles.length} planilha(s) repetida(s) foram ignoradas e mantidas.`);
+        } else {
+          alert(`Nenhuma nova planilha a ser importada. As ${duplicateFiles.length} planilha(s) repetida(s) foram mantidas inalteradas.`);
+        }
+      }
+
+      pendingUploadPayload = null;
     }
 
     function exportToExcel() {
