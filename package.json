@@ -1,0 +1,20 @@
+{
+  "name": "acotubo-sesmt-bi-cids",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Dashboard Web de Absenteísmo e CIDs 2026 - Grupo Açotubo SESMT",
+  "scripts": {
+    "start": "serve .",
+    "build": "echo 'Build complete'"
+  },
+  "keywords": [
+    "sesmt",
+    "acotubo",
+    "absenteismo",
+    "cids",
+    "dashboard",
+    "bi"
+  ],
+  "author": "SESMT Grupo Açotubo",
+  "license": "MIT"
+}

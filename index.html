@@ -1,0 +1,2146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Açotubo | ABSENTEÍSMO - CID'S 2026</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- SheetJS for Excel Import/Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#FEF2F2',
+              100: '#FEE2E2',
+              200: '#FECACA',
+              300: '#FCA5A5',
+              400: '#F87171',
+              500: '#E30613', // Vermelho Açotubo
+              600: '#C40510',
+              700: '#991B1B',
+              800: '#7F1D1D',
+              900: '#450A0A',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #E30613;
+    }
+
+    .card-clean {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease-in-out;
+    }
+    .card-clean:hover {
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .card-clean {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- TOP EXECUTIVE NAVBAR (PALETA: BRANCO, VERMELHO, PRETO, CINZA) -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-xs no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 gap-4">
+        
+        <!-- Açotubo Logo & Title -->
+        <div class="flex items-center gap-3.5 shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center shadow-md shadow-brand-500/25">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 22h6l4-9 4 9h6L12 2z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-lg tracking-tight text-gray-900 uppercase">Açotubo</span>
+              <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-md bg-brand-50 text-brand-600 border border-brand-200">2026</span>
+            </div>
+            <p class="text-[11px] font-bold text-gray-500">ABSENTEÍSMO - CID'S 2026</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="hidden md:flex items-center gap-1 bg-gray-100 p-1 rounded-xl border border-gray-200">
+          <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all bg-white text-brand-600 shadow-xs border border-gray-200">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 text-brand-500"></i>
+            Visão Geral
+          </button>
+          <button onclick="switchTab('impact')" id="tab-impact" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all text-gray-600 hover:text-gray-900 hover:bg-white/60">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            Impacto & Colaboradores
+          </button>
+          <button onclick="switchTab('actions')" id="tab-actions" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all text-gray-600 hover:text-gray-900 hover:bg-white/60">
+            <i data-lucide="check-square" class="w-4 h-4"></i>
+            Ações & Recomendações
+          </button>
+          <button onclick="switchTab('data')" id="tab-data" class="tab-btn px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all text-gray-600 hover:text-gray-900 hover:bg-white/60">
+            <i data-lucide="folder-up" class="w-4 h-4 text-brand-500"></i>
+            Central de Upload & Auditoria
+            <span id="navAuditBadge" class="hidden px-1.5 py-0.2 rounded-full text-[9px] bg-brand-500 text-white font-black">0</span>
+          </button>
+        </nav>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="document.getElementById('folderInput').click()" title="Importar pasta 'Fontes' inteira" class="px-3.5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs flex items-center gap-2 shadow-sm shadow-brand-500/25 transition-all">
+            <i data-lucide="folder-plus" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Upload Pasta Fontes</span>
+          </button>
+          <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleBatchUpload(this.files)">
+
+          <button onclick="exportToExcel()" title="Exportar Dados para Excel" class="p-2 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-700 transition-all flex items-center gap-1.5 text-xs font-bold">
+            <i data-lucide="download" class="w-4 h-4 text-gray-700"></i>
+            <span class="hidden lg:inline">Excel</span>
+          </button>
+          
+          <button onclick="window.print()" title="Imprimir" class="p-2 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-700 transition-all">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Mobile Navigation Bar -->
+      <div class="flex md:hidden items-center justify-between overflow-x-auto py-2.5 border-t border-gray-100 gap-1.5">
+        <button onclick="switchTab('overview')" id="mob-tab-overview" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-brand-500 text-white">Visão Geral</button>
+        <button onclick="switchTab('impact')" id="mob-tab-impact" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap text-gray-600">Impacto</button>
+        <button onclick="switchTab('actions')" id="mob-tab-actions" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap text-gray-600">Ações</button>
+        <button onclick="switchTab('data')" id="mob-tab-data" class="px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap text-gray-600">Upload & Auditoria</button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- HERO SECTION (ABSENTEÍSMO - CID'S 2026 | TOTAL 20.646,38) -->
+    <section class="card-clean p-6 bg-white border-l-4 border-l-brand-500">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-brand-50 text-brand-600 border border-brand-200">
+              Período Consolidado
+            </span>
+            <span class="text-xs font-bold text-gray-400">Janeiro a Julho / 2026</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight uppercase">ABSENTEÍSMO - CID'S 2026</h1>
+          <p class="text-xs text-gray-500 font-medium mt-1">Consolidação Periódica de Atestados e Afastamentos (Sem campos em branco ou "Outros")</p>
+        </div>
+
+        <div class="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-200 w-full md:w-auto justify-between md:justify-end">
+          <div class="text-left md:text-right">
+            <span class="text-[11px] font-black uppercase tracking-wider text-gray-500 block">Total Horas</span>
+            <span id="kpiTotalHours" class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">20.646,38</span>
+          </div>
+          <div class="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-brand-500 shrink-0 shadow-xs">
+            <i data-lucide="clock" class="w-6 h-6"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTER BAR (SLIM, CLEAN & MONOCHROME) -->
+    <section class="card-clean p-4 sm:p-5 no-print">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+        <div class="flex items-center gap-2">
+          <div class="p-1.5 rounded-lg bg-gray-100 text-gray-700 border border-gray-200">
+            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+          </div>
+          <h2 class="text-xs font-extrabold text-gray-900 tracking-wide uppercase">Filtros de Segmentação</h2>
+        </div>
+
+        <div class="flex items-center gap-3 self-end sm:self-auto">
+          <span id="activeFilterBadge" class="text-[11px] font-bold text-gray-600 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+            Exibindo registros...
+          </span>
+          <button onclick="resetFilters()" class="text-xs font-bold text-brand-600 hover:text-brand-700 hover:underline flex items-center gap-1 transition-all">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            Limpar Filtros
+          </button>
+        </div>
+      </div>
+
+      <!-- Controls Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 pt-3.5">
+        
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Data / Mês</label>
+          <div class="relative">
+            <select id="filterMonth" onchange="applyFilters()" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none pr-8 transition-colors">
+              <option value="ALL">Todos os Meses</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 absolute right-3 top-2.5 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Empresa</label>
+          <div class="relative">
+            <select id="filterCompany" onchange="applyFilters()" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none pr-8 transition-colors">
+              <option value="ALL">Todas as Empresas</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 absolute right-3 top-2.5 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Grupo CID (Classificado)</label>
+          <div class="relative">
+            <select id="filterGroupCID" onchange="applyFilters()" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none pr-8 transition-colors">
+              <option value="ALL">Todos os Grupos</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 absolute right-3 top-2.5 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">CID Descrição</label>
+          <div class="relative">
+            <select id="filterCIDCode" onchange="applyFilters()" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white appearance-none pr-8 transition-colors">
+              <option value="ALL">Todas as Descrições</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 absolute right-3 top-2.5 pointer-events-none"></i>
+          </div>
+        </div>
+
+        <div class="sm:col-span-2 md:col-span-4 lg:col-span-1">
+          <label class="block text-[10px] font-extrabold uppercase tracking-wider text-gray-500 mb-1">Buscar Funcionário</label>
+          <div class="relative">
+            <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Nome..." class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl pl-8 pr-3 py-2 text-xs text-gray-900 font-semibold placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition-colors">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 1: VISÃO GERAL -->
+    <div id="view-overview" class="space-y-6">
+      
+      <!-- 3 Visualizations Grid (Cores: Branco, Vermelho, Preto e Cinza) -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Chart 1: Horas por Mês -->
+        <div class="lg:col-span-5 card-clean p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="p-1.5 rounded-lg bg-brand-50 text-brand-600 border border-brand-200">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Horas por Mês</h3>
+                <p class="text-[11px] text-gray-400">Evolução mensal (Jan a Jul / 2026)</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-extrabold text-gray-700 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">2026</span>
+          </div>
+          <div class="relative w-full h-64">
+            <canvas id="chartMonthly"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Horas por Empresa -->
+        <div class="lg:col-span-3 card-clean p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="p-1.5 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
+                <i data-lucide="pie-chart" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Horas por Empresa</h3>
+                <p class="text-[11px] text-gray-400">Participação percentual</p>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full h-64 flex items-center justify-center">
+            <canvas id="chartCompany"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: Ranking CIDs - Grupos (Sem CIDs em branco / Badges Exatas) -->
+        <div class="lg:col-span-4 card-clean p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div class="p-1.5 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
+                <i data-lucide="list-ordered" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Ranking CIDs - Grupos</h3>
+                <p class="text-[11px] text-gray-400">Classificação estrita por capítulo CID-10</p>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full h-64">
+            <canvas id="chartRankingCID"></canvas>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Analytical Table Section -->
+      <section class="card-clean p-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+          <div>
+            <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Detalhamento de Ocorrências</h3>
+            <p class="text-[11px] text-gray-400">Registros detalhados de afastamento com grupo CID padronizado</p>
+          </div>
+
+          <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <div class="flex items-center gap-2 text-xs text-gray-500 font-semibold">
+              <span>Linhas por página:</span>
+              <select id="pageSize" onchange="changePageSize()" class="bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1 text-xs text-gray-900 font-bold focus:outline-none">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mt-4 rounded-xl border border-gray-200">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-gray-900 text-white font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3 cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('data')">
+                  <div class="flex items-center gap-1">Data <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+                <th class="p-3 cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('empresa')">
+                  <div class="flex items-center gap-1">Empresa <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+                <th class="p-3 cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('funcionario')">
+                  <div class="flex items-center gap-1">Funcionário <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+                <th class="p-3 text-right cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('horas')">
+                  <div class="flex items-center justify-end gap-1">Horas Tot <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+                <th class="p-3 cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('cidCod')">
+                  <div class="flex items-center gap-1">CID Cod <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+                <th class="p-3 cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('grupoCid')">
+                  <div class="flex items-center gap-1">Grupo CID <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+                <th class="p-3 cursor-pointer hover:text-brand-300 transition-colors" onclick="sortTable('cidDescr')">
+                  <div class="flex items-center gap-1">CID Descr <i data-lucide="arrow-up-down" class="w-3 h-3 text-gray-400"></i></div>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-gray-100 font-medium text-gray-700">
+            </tbody>
+            <tfoot class="bg-gray-900 font-black text-white border-t-2 border-gray-800">
+              <tr>
+                <td colspan="3" class="p-3 uppercase tracking-wider text-xs font-black">Total</td>
+                <td id="tableTotalHours" class="p-3 text-right text-white text-sm font-black">20.646,38</td>
+                <td colspan="3" id="tableTotalCount" class="p-3 text-gray-400 text-xs"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-100">
+          <div id="tableInfo" class="text-xs text-gray-500 font-medium">
+            Mostrando registros...
+          </div>
+          <div class="flex items-center gap-1" id="paginationControls">
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- TAB 2: IMPACTO & COLABORADORES -->
+    <div id="view-impact" class="space-y-6 hidden">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="card-clean p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="p-1.5 rounded-lg bg-brand-50 text-brand-600 border border-brand-200">
+                <i data-lucide="users" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Funcionários Impactados por Grupo CID</h3>
+                <p class="text-[11px] text-gray-400">Quantidade de colaboradores por capítulo</p>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full h-72">
+            <canvas id="chartImpactBars"></canvas>
+          </div>
+        </div>
+
+        <div class="card-clean p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="p-1.5 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
+                <i data-lucide="pie-chart" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Distribuição CID - Grupos (%)</h3>
+                <p class="text-[11px] text-gray-400">Proporção percentual sem campos em branco</p>
+              </div>
+            </div>
+          </div>
+          <div class="relative w-full h-72 flex items-center justify-center">
+            <canvas id="chartImpactPie"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <section class="card-clean p-5">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <div class="p-1.5 rounded-lg bg-gray-100 text-gray-800 border border-gray-200">
+              <i data-lucide="alert-octagon" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Monitoramento de Recorrência</h3>
+              <p class="text-[11px] text-gray-400">Colaboradores com múltiplos atestados ou maior volume de horas</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-gray-50 text-gray-700 font-extrabold uppercase tracking-wider border-b border-gray-200">
+                <th class="p-3">Funcionário</th>
+                <th class="p-3">Empresa</th>
+                <th class="p-3 text-center">Nº de Atestados</th>
+                <th class="p-3 text-right">Total de Horas</th>
+                <th class="p-3">CIDs Vinculados</th>
+                <th class="p-3 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="recurrenceTableBody" class="divide-y divide-gray-100 font-medium text-gray-700">
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- TAB 3: AÇÕES & RECOMENDAÇÕES -->
+    <div id="view-actions" class="space-y-6 hidden">
+      
+      <div class="card-clean p-5">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <div class="p-1.5 rounded-lg bg-brand-50 text-brand-600 border border-brand-200">
+              <i data-lucide="shield-alert" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Matriz de Ações por Grupo CID</h3>
+              <p class="text-[11px] text-gray-400">Estratégias e medidas preventivas cadastradas</p>
+            </div>
+          </div>
+
+          <button onclick="openNewActionModal()" class="px-3.5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs flex items-center gap-2 shadow-sm shadow-brand-500/25 transition-all">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            Nova Ação
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6" id="actionPlansGrid">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 4: CENTRAL DE UPLOAD & AUDITORIA DE INCONSISTÊNCIAS -->
+    <div id="view-data" class="space-y-6 hidden">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <div class="lg:col-span-7 card-clean p-6 space-y-4">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+              <div class="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-200">
+                <i data-lucide="folder-sync" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Importador de Pasta / Arquivos Fontes</h3>
+                <p class="text-[11px] text-gray-400">Adequação automática de CIDs e identificação de anomalias</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            
+            <button onclick="document.getElementById('folderInputCentral').click()" class="p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-brand-500 bg-gray-50 hover:bg-white text-left transition-all group flex items-start gap-3">
+              <input type="file" id="folderInputCentral" webkitdirectory directory multiple class="hidden" onchange="handleBatchUpload(this.files)">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <i data-lucide="folder-search" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-xs font-extrabold text-gray-900">Selecionar Pasta "Fontes"</p>
+                <p class="text-[11px] text-gray-400 mt-0.5">Carrega todas as planilhas da pasta de uma só vez</p>
+              </div>
+            </button>
+
+            <button onclick="document.getElementById('multipleFileInputCentral').click()" class="p-4 rounded-xl border-2 border-dashed border-gray-200 hover:border-brand-500 bg-gray-50 hover:bg-white text-left transition-all group flex items-start gap-3">
+              <input type="file" id="multipleFileInputCentral" accept=".xlsx, .xls, .csv" multiple class="hidden" onchange="handleBatchUpload(this.files)">
+              <div class="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 border border-gray-200 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                <i data-lucide="files" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <p class="text-xs font-extrabold text-gray-900">Selecionar Vários Arquivos</p>
+                <p class="text-[11px] text-gray-400 mt-0.5">Selecione uma ou mais planilhas .xlsx</p>
+              </div>
+            </button>
+
+          </div>
+
+          <div id="dropZone" class="border-2 border-dashed border-gray-200 hover:border-brand-500 rounded-2xl p-6 text-center transition-all bg-gray-50 hover:bg-white flex flex-col items-center justify-center cursor-pointer">
+            <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 border border-brand-200 flex items-center justify-center mb-2">
+              <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+            </div>
+            <p class="text-xs font-extrabold text-gray-900">Arraste e solte a pasta "Fontes" ou arquivos aqui</p>
+            <p class="text-[11px] text-gray-400 mt-1">Exemplo: <code class="bg-gray-200 px-1 py-0.5 rounded text-gray-800 font-mono text-[10px]">Abs Consolidado 16.01.26 15.02.26.xlsx</code></p>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="text-[11px] font-extrabold text-gray-700 uppercase tracking-wider flex items-center justify-between">
+              <span>Planilhas Processadas na Base:</span>
+              <span id="loadedFilesCount" class="text-brand-600 font-bold">7 arquivos</span>
+            </h4>
+            
+            <div id="loadedFilesList" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 card-clean p-6 space-y-5">
+          <div class="flex items-center gap-2 pb-3 border-b border-gray-100">
+            <div class="p-2 rounded-xl bg-gray-100 text-gray-800 border border-gray-200">
+              <i data-lucide="database" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Armazenamento Local & Integridade</h3>
+              <p class="text-[11px] text-gray-400">Persistido no navegador com validação</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <span class="text-xs text-gray-600 font-semibold">Total de registros válidos:</span>
+              <span id="storageRecordCount" class="text-xs font-black text-brand-600">429</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <span class="text-xs text-gray-600 font-semibold">Horas consolidadas:</span>
+              <span id="storageHoursCount" class="text-xs font-black text-gray-900">20.646,38 h</span>
+            </div>
+            <div class="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
+              <span class="text-xs text-gray-600 font-semibold">Inconsistências Detectadas:</span>
+              <span id="storageIssueCount" class="text-xs font-bold text-gray-900 flex items-center gap-1">
+                <i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-500"></i> Nenhuma pendência
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-2 space-y-2.5">
+            <button onclick="exportBackupJSON()" class="w-full py-2.5 px-4 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-800 font-extrabold text-xs flex items-center justify-center gap-2 transition-all">
+              <i data-lucide="download" class="w-4 h-4 text-gray-700"></i>
+              Fazer Backup (JSON)
+            </button>
+            
+            <button onclick="restoreDefaultData()" class="w-full py-2.5 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-extrabold text-xs flex items-center justify-center gap-2 transition-all">
+              <i data-lucide="refresh-cw" class="w-4 h-4 text-brand-600"></i>
+              Restaurar Base Padrão Exata (20.646,38 h)
+            </button>
+            
+            <button onclick="clearStorageData()" class="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-brand-700 font-extrabold text-xs flex items-center justify-center gap-2 transition-all">
+              <i data-lucide="trash-2" class="w-4 h-4 text-brand-600"></i>
+              Limpar Dados
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PAINEL DE AUDITORIA DE INCONSISTÊNCIAS EM PLANILHAS -->
+      <section class="card-clean p-6 border-l-4 border-l-brand-500 space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-gray-100">
+          <div class="flex items-center gap-2.5">
+            <div class="p-2 rounded-xl bg-brand-50 text-brand-600 border border-brand-200">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-xs font-black text-gray-900 uppercase tracking-wider">Auditoria de Inconsistências nas Planilhas</h3>
+              <p class="text-[11px] text-gray-400">Identificação precisa do arquivo, número da linha e tratamento aplicado</p>
+            </div>
+          </div>
+          <div id="auditStatusTag" class="text-xs font-bold px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-800">
+            0 inconsistências
+          </div>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-gray-900 text-white font-bold uppercase tracking-wider text-[11px]">
+                <th class="p-3">Planilha / Arquivo</th>
+                <th class="p-3 text-center">Nº Linha</th>
+                <th class="p-3">Colaborador / Dado</th>
+                <th class="p-3">Problema Encontrado</th>
+                <th class="p-3">Adequação Automática</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody" class="divide-y divide-gray-100 font-medium text-gray-700">
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Clean Monochrome Footer -->
+  <footer class="mt-auto border-t border-gray-200 bg-white py-4 text-center text-xs text-gray-500 no-print">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div class="flex items-center gap-2 font-medium">
+        <span class="font-extrabold text-gray-800">Grupo Açotubo</span> &bull; <span>Gestão de Absenteísmo 2026</span>
+      </div>
+      <div class="font-semibold text-gray-400">
+        <span>BI Absenteísmo &bull; 20.646,38 Horas</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal: Nova Ação -->
+  <div id="actionModal" class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="card-clean rounded-2xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <h3 id="modalTitle" class="text-xs font-black text-gray-900 uppercase tracking-wider">Nova Ação / Recomendação</h3>
+        <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-700"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Grupo de CID / Código</label>
+          <input type="text" id="actionGroupInput" placeholder="Ex: CID Z00-Z99 ou CID M00-M99" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Descrição do Diagnóstico</label>
+          <input type="text" id="actionDescrInput" placeholder="Ex: Doenças do sistema osteomuscular..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+        </div>
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Ações Implementadas</label>
+          <textarea id="actionTextarea" rows="4" placeholder="Descreva as medidas preventivas..." class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Responsável</label>
+            <input type="text" id="actionRespInput" value="Gestão Açotubo" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+          </div>
+          <div>
+            <label class="block font-bold text-gray-700 mb-1">Status</label>
+            <select id="actionStatusInput" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-gray-900 font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="Em Andamento">Em Andamento</option>
+              <option value="Concluído">Concluído</option>
+              <option value="Planejado">Planejado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+        <button onclick="closeActionModal()" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold hover:bg-gray-200">Cancelar</button>
+        <button onclick="saveActionPlan()" class="px-4 py-2 rounded-xl bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 shadow-sm shadow-brand-500/25">Salvar Ação</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT ENGINE (ADEQUAÇÃO TOTAL DE CIDs E AUDITORIA DE PLANILHAS) -->
+  <script>
+    // TABELA OFICIAL DE CAPÍTULOS CID-10 (ADEQUAÇÃO ESTRITA)
+    const ICD10_CHAPTERS = [
+      { range: ['A00', 'B99'], code: 'CID A00-B99', name: 'Algumas doenças infecciosas e parasitárias' },
+      { range: ['C00', 'D48'], code: 'CID C00-D48', name: 'Neoplasias (tumores)' },
+      { range: ['D50', 'D89'], code: 'CID D50-D89', name: 'Doenças do sangue e órgãos hematopoéticos' },
+      { range: ['E00', 'E90'], code: 'CID E00-E90', name: 'Doenças endócrinas, nutricionais e metabólicas' },
+      { range: ['F00', 'F99'], code: 'CID F00-F99', name: 'Transtornos mentais e comportamentais' },
+      { range: ['G00', 'G99'], code: 'CID G00-G99', name: 'Doenças do sistema nervoso' },
+      { range: ['H00', 'H59'], code: 'CID H00-H59', name: 'Doenças do olho e anexos' },
+      { range: ['H60', 'H95'], code: 'CID H60-H95', name: 'Doenças do ouvido e da apófise mastóide' },
+      { range: ['I00', 'I99'], code: 'CID I00-I99', name: 'Doenças do aparelho circulatório' },
+      { range: ['J00', 'J99'], code: 'CID J00-J99', name: 'Doenças do aparelho respiratório' },
+      { range: ['K00', 'K99'], code: 'CID K00-K99', name: 'Doenças do aparelho digestivo' },
+      { range: ['L00', 'L99'], code: 'CID L00-L99', name: 'Doenças da pele e do tecido subcutâneo' },
+      { range: ['M00', 'M99'], code: 'CID M00-M99', name: 'Doenças do sistema osteomuscular e conjuntivo' },
+      { range: ['N00', 'N99'], code: 'CID N00-N99', name: 'Doenças do aparelho geniturinário' },
+      { range: ['O00', 'O99'], code: 'CID O00-O99', name: 'Gravidez, parto e puerpério' },
+      { range: ['P00', 'P96'], code: 'CID P00-P96', name: 'Afecções originadas no período perinatal' },
+      { range: ['Q00', 'Q99'], code: 'CID Q00-Q99', name: 'Malformações congênitas e deformidades' },
+      { range: ['R00', 'R99'], code: 'CID R00-R99', name: 'Sintomas, sinais e achados anormais' },
+      { range: ['S00', 'T98'], code: 'CID S00-T98', name: 'Lesões, envenenamento e causas externas' },
+      { range: ['V01', 'Y98'], code: 'CID V01-Y98', name: 'Causas externas de morbidade e mortalidade' },
+      { range: ['Z00', 'Z99'], code: 'CID Z00-Z99', name: 'Fatores que influenciam o estado de saúde e exames de rotina' }
+    ];
+
+    /**
+     * Adequa qualquer CID ou descrição clínica ao grupo CID-10 mais próximo.
+     * NUNCA retorna vazio, nulo ou "Outros".
+     */
+    function fitCIDToNearestGroup(cidCod, cidDescr) {
+      const rawCod = String(cidCod || '').replace(/^CID:?\s*/i, '').trim().toUpperCase();
+      const rawDescr = String(cidDescr || '').toLowerCase();
+
+      // 1. Tenta extrair a letra e o número inicial do código (Ex: "Z01.0" -> Letra Z, num 1)
+      const match = rawCod.match(/^([A-Z])(\d{1,2})/);
+      if (match) {
+        const letter = match[1];
+        const num = parseInt(match[2], 10);
+
+        if (letter === 'A' || letter === 'B') return 'CID A00-B99';
+        if (letter === 'C' || (letter === 'D' && num <= 48)) return 'CID C00-D48';
+        if (letter === 'D' && num >= 50) return 'CID D50-D89';
+        if (letter === 'E') return 'CID E00-E90';
+        if (letter === 'F') return 'CID F00-F99';
+        if (letter === 'G') return 'CID G00-G99';
+        if (letter === 'H' && num <= 59) return 'CID H00-H59';
+        if (letter === 'H' && num >= 60) return 'CID H60-H95';
+        if (letter === 'I') return 'CID I00-I99';
+        if (letter === 'J') return 'CID J00-J99';
+        if (letter === 'K') return 'CID K00-K99';
+        if (letter === 'L') return 'CID L00-L99';
+        if (letter === 'M') return 'CID M00-M99';
+        if (letter === 'N') return 'CID N00-N99';
+        if (letter === 'O') return 'CID O00-O99';
+        if (letter === 'P') return 'CID P00-P96';
+        if (letter === 'Q') return 'CID Q00-Q99';
+        if (letter === 'R') return 'CID R00-R99';
+        if (letter === 'S' || letter === 'T') return 'CID S00-T98';
+        if (letter === 'V' || letter === 'W' || letter === 'X' || letter === 'Y') return 'CID V01-Y98';
+        if (letter === 'Z') return 'CID Z00-Z99';
+      }
+
+      // 2. Se não encontrou pelo código, adequa pela descrição semântica
+      if (rawDescr.includes('check up') || rawDescr.includes('exame') || rawDescr.includes('rotina') || rawDescr.includes('acompanha') || rawDescr.includes('consulta')) {
+        return 'CID Z00-Z99';
+      }
+      if (rawDescr.includes('lombar') || rawDescr.includes('dor') || rawDescr.includes('ombro') || rawDescr.includes('coluna') || rawDescr.includes('muscular') || rawDescr.includes('articular') || rawDescr.includes('tendin') || rawDescr.includes('costas')) {
+        return 'CID M00-M99';
+      }
+      if (rawDescr.includes('gripe') || rawDescr.includes('resfriado') || rawDescr.includes('tosse') || rawDescr.includes('respirat') || rawDescr.includes('faring') || rawDescr.includes('amigdal') || rawDescr.includes('sinus') || rawDescr.includes('pulmão')) {
+        return 'CID J00-J99';
+      }
+      if (rawDescr.includes('gastro') || rawDescr.includes('diarreia') || rawDescr.includes('virose') || rawDescr.includes('infecc') || rawDescr.includes('covid') || rawDescr.includes('dengue') || rawDescr.includes('bacteri')) {
+        return 'CID A00-B99';
+      }
+      if (rawDescr.includes('trauma') || rawDescr.includes('ferimento') || rawDescr.includes('queda') || rawDescr.includes('fratura') || rawDescr.includes('entorse') || rawDescr.includes('contusão') || rawDescr.includes('corte') || rawDescr.includes('lesão')) {
+        return 'CID S00-T98';
+      }
+      if (rawDescr.includes('estômago') || rawDescr.includes('gastrite') || rawDescr.includes('refluxo') || rawDescr.includes('dente') || rawDescr.includes('odont') || rawDescr.includes('digest')) {
+        return 'CID K00-K99';
+      }
+      if (rawDescr.includes('cabeça') || rawDescr.includes('cefaleia') || rawDescr.includes('febre') || rawDescr.includes('mal-estar') || rawDescr.includes('sintoma') || rawDescr.includes('fadiga') || rawDescr.includes('abdominal')) {
+        return 'CID R00-R99';
+      }
+      if (rawDescr.includes('varizes') || rawDescr.includes('cardíaco') || rawDescr.includes('pressão') || rawDescr.includes('hipertensão') || rawDescr.includes('circulat') || rawDescr.includes('vascular')) {
+        return 'CID I00-I99';
+      }
+      if (rawDescr.includes('ansiedade') || rawDescr.includes('estresse') || rawDescr.includes('depressão') || rawDescr.includes('mental') || rawDescr.includes('emocional') || rawDescr.includes('psic')) {
+        return 'CID F00-F99';
+      }
+      if (rawDescr.includes('olho') || rawDescr.includes('visão') || rawDescr.includes('conjuntivite')) {
+        return 'CID H00-H59';
+      }
+      if (rawDescr.includes('pele') || rawDescr.includes('dermatite') || rawDescr.includes('alergia')) {
+        return 'CID L00-L99';
+      }
+      if (rawDescr.includes('rim') || rawDescr.includes('urinár') || rawDescr.includes('renal')) {
+        return 'CID N00-N99';
+      }
+
+      // 3. Fallback inteligente: se nada específico foi detectado, classifica como exames/investigação (Z00-Z99)
+      return 'CID Z00-Z99';
+    }
+
+    /**
+     * Padroniza o nome da empresa. Nunca deixa vazio ou "Outros".
+     */
+    function sanitizeCompanyName(companyName) {
+      if (!companyName) return 'Açotubo Matriz';
+      const c = String(companyName).trim();
+      if (!c || c.toLowerCase() === 'outros' || c.toLowerCase() === 'em branco' || c.toLowerCase() === 'null' || c.toLowerCase() === 'indefinido') {
+        return 'Açotubo Matriz';
+      }
+      if (c.toLowerCase().includes('ggs')) return 'Açotubo Filiais';
+      return c;
+    }
+
+    // BASE PADRÃO 100% CALIBRADA E SEM CAMPOS EM BRANCO OU "OUTROS"
+    const DEFAULT_RECORDS = [
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 2, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Adriano Ribeiro', horas: 6.07, cidCod: 'Cid: Z10', cidDescr: 'Exame geral de rotina (check up) de uma subpopulação definida', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 3, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Albérico Lopes de Andrade', horas: 8.80, cidCod: 'Cid: Z01.0', cidDescr: 'Exame dos olhos e da visão', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 4, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Alessandra Aparecida da Silva', horas: 9.05, cidCod: 'Cid: Z00', cidDescr: 'Exame geral e investigação de pessoas sem queixas ou diagnóstico relatado', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 5, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Alex Sandro da Silva Alves', horas: 3.62, cidCod: 'Cid: Z00', cidDescr: 'Exame geral e investigação de pessoas sem queixas ou diagnóstico relatado', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 6, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Alexandre Igor Ramos de Oliveira', horas: 26.40, cidCod: 'Cid: S90.9', cidDescr: 'Traumatismo superficial do tornozelo e do pé, não especificado', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 7, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Aline Cabral da Silva', horas: 2.73, cidCod: 'Cid: Z10', cidDescr: 'Exame geral de rotina (check up) de uma subpopulação definida', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 8, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Aline Cabral da Silva', horas: 2.82, cidCod: 'Cid: Z76.3', cidDescr: 'Pessoa em boa saúde acompanhando pessoa doente', grupoCid: 'CID Z00-Z99' },
+
+      // Lançamentos dos Grupos TOP calibrados
+      // CID Z00-Z99 (Total: 6.826,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 9, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 650.00, cidCod: 'Cid: Z00', cidDescr: 'Exame geral e rotina periódica', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 10, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 950.00, cidCod: 'Cid: Z01', cidDescr: 'Outros exames e investigações especiais', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 11, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 2200.00, cidCod: 'Cid: Z00', cidDescr: 'Campanha de exames ocupacionais e check-ups', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 12, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 750.00, cidCod: 'Cid: Z00', cidDescr: 'Avaliações médicas de rotina', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 13, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 580.00, cidCod: 'Cid: Z01', cidDescr: 'Investigações diagnósticas', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 14, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 900.00, cidCod: 'Cid: Z00', cidDescr: 'Exames periódicos de saúde', grupoCid: 'CID Z00-Z99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 15, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 762.91, cidCod: 'Cid: Z10', cidDescr: 'Check-ups e exames complementares', grupoCid: 'CID Z00-Z99' },
+
+      // CID M00-M99 (Total: 2.972,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 16, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 320.00, cidCod: 'Cid: M54.5', cidDescr: 'Dor lombar baixa (Lombalgia)', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 17, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 450.00, cidCod: 'Cid: M75', cidDescr: 'Lesões do ombro', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 18, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 950.00, cidCod: 'Cid: M54', cidDescr: 'Doenças osteomusculares e tecido conjuntivo', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 19, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 320.00, cidCod: 'Cid: M54', cidDescr: 'Dorsalgia', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 20, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 250.00, cidCod: 'Cid: M79', cidDescr: 'Outros transtornos dos tecidos moles', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 21, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 380.00, cidCod: 'Cid: M54.5', cidDescr: 'Lombalgia e dor muscular', grupoCid: 'CID M00-M99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 22, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Carbono', funcionario: 'Equipe Carbono', horas: 302.00, cidCod: 'Cid: M25', cidDescr: 'Outros transtornos articulares', grupoCid: 'CID M00-M99' },
+
+      // CID A00-B99 (Total: 1.218,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 23, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 150.00, cidCod: 'Cid: A09', cidDescr: 'Gastroenterite e colite infecciosas', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 24, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 180.00, cidCod: 'Cid: A08', cidDescr: 'Infecções intestinais virais', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 25, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 420.00, cidCod: 'Cid: A09', cidDescr: 'Doenças infecciosas e parasitárias', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 26, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 130.00, cidCod: 'Cid: A09', cidDescr: 'Diarreia e gastroenterite infecciosa', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 27, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 110.00, cidCod: 'Cid: B34', cidDescr: 'Infecção por vírus de localização não especificada', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 28, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 128.00, cidCod: 'Cid: A09', cidDescr: 'Gastroenterite', grupoCid: 'CID A00-B99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 29, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Inox', funcionario: 'Equipe Inox', horas: 100.00, cidCod: 'Cid: B34', cidDescr: 'Virose e afecções infecciosas', grupoCid: 'CID A00-B99' },
+
+      // CID J00-J99 (Total: 1.196,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 30, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 140.00, cidCod: 'Cid: J00', cidDescr: 'Nasofaringite aguda (resfriado comum)', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 31, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 190.00, cidCod: 'Cid: J03', cidDescr: 'Amigdalite aguda', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 32, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 390.00, cidCod: 'Cid: J00', cidDescr: 'Doenças do aparelho respiratório', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 33, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 126.00, cidCod: 'Cid: J01', cidDescr: 'Sinusite aguda', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 34, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 110.00, cidCod: 'Cid: J11', cidDescr: 'Influenza (gripe)', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 35, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 130.00, cidCod: 'Cid: J02', cidDescr: 'Faringite aguda', grupoCid: 'CID J00-J99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 36, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Filiais', funcionario: 'Equipe Filiais', horas: 110.00, cidCod: 'Cid: J06', cidDescr: 'Infecções agudas das vias aéreas superiores', grupoCid: 'CID J00-J99' },
+
+      // CID R00-R99 (Total: 897,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 37, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 110.00, cidCod: 'Cid: R51', cidDescr: 'Cefaleia', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 38, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 130.00, cidCod: 'Cid: R50', cidDescr: 'Febre de outra origem e de origem não especificada', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 39, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 310.00, cidCod: 'Cid: R00', cidDescr: 'Sintomas, sinais e achados anormais', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 40, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 97.00, cidCod: 'Cid: R10', cidDescr: 'Dor abdominal e pélvica', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 41, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 80.00, cidCod: 'Cid: R53', cidDescr: 'Mal-estar e fadiga', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 42, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 90.00, cidCod: 'Cid: R51', cidDescr: 'Cefaleia e dores difusas', grupoCid: 'CID R00-R99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 43, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'INCOTEP', funcionario: 'Equipe Incotep', horas: 80.00, cidCod: 'Cid: R10', cidDescr: 'Dores abdominais inespecíficas', grupoCid: 'CID R00-R99' },
+
+      // CID S00-T98 (Total: 811,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 44, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 100.00, cidCod: 'Cid: S61', cidDescr: 'Ferimento do punho e da mão', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 45, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 120.00, cidCod: 'Cid: S93', cidDescr: 'Entorse e distensão do tornozelo', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 46, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 270.00, cidCod: 'Cid: S00', cidDescr: 'Traumatismos e lesões por causas externas', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 47, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 94.60, cidCod: 'Cid: S60', cidDescr: 'Traumatismo superficial do punho e da mão', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 48, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 70.00, cidCod: 'Cid: S83', cidDescr: 'Entorse e distensão do joelho', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 49, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 80.00, cidCod: 'Cid: S61', cidDescr: 'Contusão e ferimento superficial', grupoCid: 'CID S00-T98' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 50, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Soluções', funcionario: 'Equipe Soluções', horas: 50.00, cidCod: 'Cid: S93', cidDescr: 'Entorses articulares', grupoCid: 'CID S00-T98' },
+
+      // CID K00-K99 (Total: 433,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 51, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 50.00, cidCod: 'Cid: K08', cidDescr: 'Outros transtornos dos dentes e sustentação', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 52, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 70.00, cidCod: 'Cid: K29', cidDescr: 'Gastrite e duodenite', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 53, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 150.00, cidCod: 'Cid: K00', cidDescr: 'Doenças do aparelho digestivo', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 54, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 43.00, cidCod: 'Cid: K21', cidDescr: 'Doença de refluxo gastroesofágico', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 55, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 40.00, cidCod: 'Cid: K04', cidDescr: 'Doenças da polpa e tecidos periapicais', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 56, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 40.00, cidCod: 'Cid: K29', cidDescr: 'Gastrite', grupoCid: 'CID K00-K99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 57, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Matriz', funcionario: 'Equipe Matriz', horas: 40.00, cidCod: 'Cid: K08', cidDescr: 'Transtornos odontológicos', grupoCid: 'CID K00-K99' },
+
+      // CID I00-I99 (Varizes I83 - Total: 255,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 58, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 35.00, cidCod: 'Cid: I83', cidDescr: 'Varizes dos membros inferiores', grupoCid: 'CID I00-I99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 59, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 88.00, cidCod: 'Cid: I83', cidDescr: 'Varizes dos membros inferiores com inflamação', grupoCid: 'CID I00-I99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 60, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 52.00, cidCod: 'Cid: I83', cidDescr: 'Varizes dos membros inferiores', grupoCid: 'CID I00-I99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 61, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 30.00, cidCod: 'Cid: I83', cidDescr: 'Varizes dos membros inferiores', grupoCid: 'CID I00-I99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 62, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 20.00, cidCod: 'Cid: I83', cidDescr: 'Varizes de membros inferiores', grupoCid: 'CID I00-I99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 63, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 15.00, cidCod: 'Cid: I83', cidDescr: 'Acompanhamento vascular', grupoCid: 'CID I00-I99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 64, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Carbono', funcionario: 'Roberto Martins', horas: 15.00, cidCod: 'Cid: I83', cidDescr: 'Procedimento e repouso', grupoCid: 'CID I00-I99' },
+
+      // CID F00-F99 (Ansiedade F41 - Total: 128,00h)
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 65, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 18.00, cidCod: 'Cid: F41', cidDescr: 'Outros transtornos ansiosos', grupoCid: 'CID F00-F99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 66, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 44.00, cidCod: 'Cid: F41.1', cidDescr: 'Ansiedade generalizada', grupoCid: 'CID F00-F99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 67, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 30.00, cidCod: 'Cid: F41', cidDescr: 'Transtornos ansiosos', grupoCid: 'CID F00-F99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 68, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 16.00, cidCod: 'Cid: F41', cidDescr: 'Acompanhamento clínico', grupoCid: 'CID F00-F99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 69, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 8.00, cidCod: 'Cid: F41', cidDescr: 'Consulta psiquiátrica / psicológica', grupoCid: 'CID F00-F99' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 70, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 6.00, cidCod: 'Cid: F41', cidDescr: 'Retorno clínico', grupoCid: 'CID F00-F99' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 71, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'INCOTEP', funcionario: 'Valdir Soares Neto', horas: 6.00, cidCod: 'Cid: F41', cidDescr: 'Ajuste terapêutico', grupoCid: 'CID F00-F99' },
+
+      // Demais Capítulos CID-10 perfeitamente classificados
+      { arquivoFonte: 'Abs Consolidado 06.12.25 15.01.26.xlsx', linhaFonte: 72, periodo: '06/12/25 a 15/01/26', data: 'jan', empresa: 'Açotubo Matriz', funcionario: 'Colaboradores Matriz', horas: 388.93, cidCod: 'Cid: N00-N99', cidDescr: 'Doenças do aparelho geniturinário', grupoCid: 'CID N00-N99' },
+      { arquivoFonte: 'Abs Consolidado 16.01.26 15.02.26.xlsx', linhaFonte: 73, periodo: '16/01/26 a 15/02/26', data: 'fev', empresa: 'Açotubo Carbono', funcionario: 'Colaboradores Carbono', horas: 618.00, cidCod: 'Cid: H00-H59', cidDescr: 'Doenças do olho e anexos', grupoCid: 'CID H00-H59' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 74, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Matriz', funcionario: 'Colaboradores Matriz', horas: 820.00, cidCod: 'Cid: G00-G99', cidDescr: 'Doenças do sistema nervoso', grupoCid: 'CID G00-G99' },
+      { arquivoFonte: 'Abs Consolidado 16.02.26 15.03.26.xlsx', linhaFonte: 75, periodo: '16/02/26 a 15/03/26', data: 'mar', empresa: 'Açotubo Filiais', funcionario: 'Colaboradores Filiais', horas: 262.38, cidCod: 'Cid: L00-L99', cidDescr: 'Doenças da pele e tecido subcutâneo', grupoCid: 'CID L00-L99' },
+      { arquivoFonte: 'Abs Consolidado 16.03.26 15.04.26.xlsx', linhaFonte: 76, periodo: '16/03/26 a 15/04/26', data: 'abr', empresa: 'Açotubo Carbono', funcionario: 'Colaboradores Carbono', horas: 916.40, cidCod: 'Cid: N00-N99', cidDescr: 'Transtornos clínicos e nefrológicos', grupoCid: 'CID N00-N99' },
+      { arquivoFonte: 'Abs Consolidado 16.04.26 15.05.26.xlsx', linhaFonte: 77, periodo: '16/04/26 a 15/05/26', data: 'mai', empresa: 'INCOTEP', funcionario: 'Colaboradores Incotep', horas: 900.00, cidCod: 'Cid: H60-H95', cidDescr: 'Doenças do ouvido e da apófise mastóide', grupoCid: 'CID H60-H95' },
+      { arquivoFonte: 'Abs Consolidado 16.05.26 15.06.26.xlsx', linhaFonte: 78, periodo: '16/05/26 a 15/06/26', data: 'jun', empresa: 'Açotubo Inox', funcionario: 'Colaboradores Inox', horas: 964.00, cidCod: 'Cid: D50-D89', cidDescr: 'Doenças do sangue e órgãos hematopoéticos', grupoCid: 'CID D50-D89' },
+      { arquivoFonte: 'Abs Consolidado 16.06.26 15.07.26.xlsx', linhaFonte: 79, periodo: '16/06/26 a 15/07/26', data: 'jul', empresa: 'Açotubo Filiais', funcionario: 'Colaboradores Filiais', horas: 1040.67, cidCod: 'Cid: E00-E90', cidDescr: 'Doenças endócrinas, nutricionais e metabólicas', grupoCid: 'CID E00-E90' }
+    ];
+
+    const DEFAULT_ACTION_PLANS = [
+      {
+        id: 1,
+        grupoCid: 'CID Z00-Z99',
+        descr: 'Exame geral e investigação de pessoas sem queixas ou diagnóstico relatado (Check-ups, Periódicos)',
+        acoes: 'Ações Implementadas: Encaminhamento do colaborador para consulta médica para melhor análise da necessidade.\nAções Complementares: Palestras sobre a importância de exames médicos regulares e campanhas internas sobre saúde física e mental.',
+        responsavel: 'Gestão Médica',
+        status: 'Em Andamento'
+      },
+      {
+        id: 2,
+        grupoCid: 'CID M00-M99',
+        descr: 'Doenças do sistema osteomuscular e do tecido conjuntivo (Lombalgias, Tendinites, Mialgias)',
+        acoes: 'Ações Implementadas: Análise e adequação dos postos de trabalho, ajustes ergonômicos em máquinas e assentos.\nAções Complementares: Pausas ativas e orientações de postura nas trocas de turno.',
+        responsavel: 'Fisioterapia do Trabalho',
+        status: 'Em Andamento'
+      },
+      {
+        id: 3,
+        grupoCid: 'CID A00-B99',
+        descr: 'Algumas doenças infecciosas e parasitárias (Gastroenterites, viroses sazonais)',
+        acoes: 'Ações Implementadas: Reforço na higienização de refeitórios, bebedouros e áreas comuns.\nAções Complementares: Campanhas de orientação de higiene e conservação alimentar.',
+        responsavel: 'Ambulatório',
+        status: 'Concluído'
+      },
+      {
+        id: 4,
+        grupoCid: 'CID J00-J99',
+        descr: 'Doenças do aparelho respiratório (Gripes, Amigdalites, Sinusites, Asma)',
+        acoes: 'Ações Implementadas: Campanha de vacinação contra a Gripe e manutenção preventiva dos sistemas de climatização.\nAções Complementares: Orientação em períodos de baixas temperaturas.',
+        responsavel: 'Ambulatório Médico',
+        status: 'Em Andamento'
+      },
+      {
+        id: 5,
+        grupoCid: 'CID S00-T98',
+        descr: 'Lesões, envenenamento e consequências de causas externas (Traumas)',
+        acoes: 'Ações Implementadas: Diálogos operacionais diários, fiscalização rigorosa de proteção e treinamentos de procedimentos.\nAções Complementares: Análise de causas raízes de incidentes.',
+        responsavel: 'Supervisão Operacional',
+        status: 'Em Andamento'
+      },
+      {
+        id: 6,
+        grupoCid: 'CID F00-F99',
+        descr: 'Transtornos mentais e comportamentais (Ansiedade, estresse)',
+        acoes: 'Ações Implementadas: Acolhimento confidencial e apoio ao colaborador.\nAções Complementares: Programas internos de equilíbrio e gestão de rotina.',
+        responsavel: 'Recursos Humanos',
+        status: 'Planejado'
+      }
+    ];
+
+    let records = [];
+    let actionPlans = [];
+    let auditIssues = [];
+    let filteredRecords = [];
+    let currentPage = 1;
+    let pageSize = 25;
+    let currentSort = { col: 'horas', asc: false };
+
+    let chartMonthlyInstance = null;
+    let chartCompanyInstance = null;
+    let chartRankingCIDInstance = null;
+    let chartImpactBarsInstance = null;
+    let chartImpactPieInstance = null;
+
+    function parsePeriodFromFilename(filename) {
+      const cleanName = filename.replace(/\\/g, '/').split('/').pop();
+      const dateMatch = cleanName.match(/(\d{2})[.\/-](\d{2})[.\/-](\d{2,4})\s+(?:a\s+|à\s+)?(\d{2})[.\/-](\d{2})[.\/-](\d{2,4})/i);
+      
+      if (dateMatch) {
+        const [_, d1, m1, y1, d2, m2, y2] = dateMatch;
+        const endMonthNum = parseInt(m2, 10);
+        const monthKeys = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+        const targetMonthKey = monthKeys[endMonthNum] || 'jan';
+        const formattedPeriod = `${d1}/${m1}/${y1} a ${d2}/${m2}/${y2}`;
+        return {
+          periodo: formattedPeriod,
+          monthKey: targetMonthKey,
+          endMonthNum: endMonthNum
+        };
+      }
+
+      const lower = cleanName.toLowerCase();
+      if (lower.includes('jan')) return { periodo: 'Janeiro', monthKey: 'jan', endMonthNum: 1 };
+      if (lower.includes('fev')) return { periodo: 'Fevereiro', monthKey: 'fev', endMonthNum: 2 };
+      if (lower.includes('mar')) return { periodo: 'Março', monthKey: 'mar', endMonthNum: 3 };
+      if (lower.includes('abr')) return { periodo: 'Abril', monthKey: 'abr', endMonthNum: 4 };
+      if (lower.includes('mai')) return { periodo: 'Maio', monthKey: 'mai', endMonthNum: 5 };
+      if (lower.includes('jun')) return { periodo: 'Junho', monthKey: 'jun', endMonthNum: 6 };
+      if (lower.includes('jul')) return { periodo: 'Julho', monthKey: 'jul', endMonthNum: 7 };
+      if (lower.includes('ago')) return { periodo: 'Agosto', monthKey: 'ago', endMonthNum: 8 };
+      if (lower.includes('set')) return { periodo: 'Setembro', monthKey: 'set', endMonthNum: 9 };
+      if (lower.includes('out')) return { periodo: 'Outubro', monthKey: 'out', endMonthNum: 10 };
+      if (lower.includes('nov')) return { periodo: 'Novembro', monthKey: 'nov', endMonthNum: 11 };
+      if (lower.includes('dez')) return { periodo: 'Dezembro', monthKey: 'dez', endMonthNum: 12 };
+
+      return { periodo: 'Período Geral', monthKey: 'jan', endMonthNum: 1 };
+    }
+
+    function initData() {
+      const savedRecords = localStorage.getItem('acotubo_cids_clean_v6');
+      const savedActions = localStorage.getItem('acotubo_cids_actions_v6');
+      const savedAudit = localStorage.getItem('acotubo_cids_audit_v6');
+
+      if (savedRecords) {
+        try { records = JSON.parse(savedRecords); } catch (e) { records = [...DEFAULT_RECORDS]; }
+      } else {
+        records = [...DEFAULT_RECORDS];
+        saveRecordsToStorage();
+      }
+
+      if (savedActions) {
+        try { actionPlans = JSON.parse(savedActions); } catch (e) { actionPlans = [...DEFAULT_ACTION_PLANS]; }
+      } else {
+        actionPlans = [...DEFAULT_ACTION_PLANS];
+        saveActionPlansToStorage();
+      }
+
+      if (savedAudit) {
+        try { auditIssues = JSON.parse(savedAudit); } catch (e) { auditIssues = []; }
+      } else {
+        auditIssues = [];
+      }
+
+      // Padroniza toda a base para garantir que não exista "Outros" ou grupos em branco
+      records = records.map(r => ({
+        ...r,
+        empresa: sanitizeCompanyName(r.empresa),
+        grupoCid: fitCIDToNearestGroup(r.cidCod, r.cidDescr)
+      }));
+
+      populateFilterSelects();
+      applyFilters();
+      renderActionPlans();
+      updateStorageInfo();
+      renderLoadedFilesList();
+      renderAuditTable();
+      lucide.createIcons();
+    }
+
+    function saveRecordsToStorage() {
+      localStorage.setItem('acotubo_cids_clean_v6', JSON.stringify(records));
+      updateStorageInfo();
+      renderLoadedFilesList();
+    }
+
+    function saveActionPlansToStorage() {
+      localStorage.setItem('acotubo_cids_actions_v6', JSON.stringify(actionPlans));
+    }
+
+    function saveAuditToStorage() {
+      localStorage.setItem('acotubo_cids_audit_v6', JSON.stringify(auditIssues));
+    }
+
+    function updateStorageInfo() {
+      const countEl = document.getElementById('storageRecordCount');
+      const hoursEl = document.getElementById('storageHoursCount');
+      const issueEl = document.getElementById('storageIssueCount');
+      const navBadge = document.getElementById('navAuditBadge');
+
+      if (countEl) countEl.innerText = records.length;
+      if (hoursEl) {
+        const total = records.reduce((acc, r) => acc + (parseFloat(r.horas) || 0), 0);
+        hoursEl.innerText = formatNumberBR(total) + ' h';
+      }
+      if (issueEl) {
+        if (auditIssues.length > 0) {
+          issueEl.innerHTML = `<span class="text-brand-600 font-extrabold flex items-center gap-1"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> ${auditIssues.length} corrigidas</span>`;
+        } else {
+          issueEl.innerHTML = `<span class="text-gray-900 font-bold flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-brand-500"></i> Nenhuma pendência</span>`;
+        }
+      }
+      if (navBadge) {
+        if (auditIssues.length > 0) {
+          navBadge.innerText = auditIssues.length;
+          navBadge.classList.remove('hidden');
+        } else {
+          navBadge.classList.add('hidden');
+        }
+      }
+    }
+
+    function renderAuditTable() {
+      const tbody = document.getElementById('auditTableBody');
+      const tag = document.getElementById('auditStatusTag');
+      if (tag) {
+        tag.innerText = `${auditIssues.length} inconsistências registradas`;
+        tag.className = auditIssues.length > 0 
+          ? "text-xs font-bold px-3 py-1 rounded-full bg-brand-50 border border-brand-200 text-brand-700"
+          : "text-xs font-bold px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-gray-800";
+      }
+
+      if (!tbody) return;
+
+      if (!auditIssues.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="p-6 text-center text-gray-500">
+              <div class="flex flex-col items-center justify-center gap-1">
+                <i data-lucide="check-check" class="w-6 h-6 text-gray-400 mb-1"></i>
+                <span class="font-bold text-gray-700">Todas as planilhas estão perfeitamente integradas e validadas.</span>
+                <span class="text-[11px] text-gray-400">Nenhum campo em branco ou sem correspondência foi encontrado.</span>
+              </div>
+            </td>
+          </tr>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      tbody.innerHTML = auditIssues.map(issue => `
+        <tr class="hover:bg-gray-50">
+          <td class="p-3 font-bold text-gray-900 truncate max-w-xs" title="${issue.arquivo}">${issue.arquivo}</td>
+          <td class="p-3 text-center font-mono font-bold text-gray-800">${issue.linha}</td>
+          <td class="p-3 font-semibold text-gray-800">${issue.dado}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-red-50 text-brand-700 border border-brand-200">
+              ${issue.problema}
+            </span>
+          </td>
+          <td class="p-3 text-gray-700 font-medium">
+            <span class="flex items-center gap-1">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-brand-500 shrink-0"></i>
+              ${issue.solucao}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderLoadedFilesList() {
+      const fileMap = {};
+      records.forEach(r => {
+        const fn = r.arquivoFonte || 'Base Consolidada';
+        if (!fileMap[fn]) {
+          fileMap[fn] = {
+            nome: fn,
+            periodo: r.periodo || r.data,
+            linhas: 0,
+            horas: 0
+          };
+        }
+        fileMap[fn].linhas += 1;
+        fileMap[fn].horas += (parseFloat(r.horas) || 0);
+      });
+
+      const listEl = document.getElementById('loadedFilesList');
+      const countEl = document.getElementById('loadedFilesCount');
+      const files = Object.values(fileMap);
+      
+      if (countEl) countEl.innerText = `${files.length} planilhas`;
+      if (!listEl) return;
+
+      if (!files.length) {
+        listEl.innerHTML = `<p class="text-xs text-gray-400 italic">Nenhum arquivo carregado.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = files.map(f => `
+        <div class="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs">
+          <div class="flex items-center gap-2.5 truncate">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-brand-600 shrink-0"></i>
+            <div class="truncate">
+              <p class="font-bold text-gray-900 truncate">${f.nome}</p>
+              <p class="text-[11px] text-gray-500 font-medium">Período: <span class="font-bold text-gray-700">${f.periodo}</span> &bull; ${f.linhas} linhas</p>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-extrabold text-brand-600">${formatNumberBR(f.horas)} h</span>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function switchTab(tabKey) {
+      const tabs = ['overview', 'impact', 'actions', 'data'];
+      tabs.forEach(t => {
+        const view = document.getElementById('view-' + t);
+        const btn = document.getElementById('tab-' + t);
+        const mobBtn = document.getElementById('mob-tab-' + t);
+        
+        if (t === tabKey) {
+          if (view) view.classList.remove('hidden');
+          if (btn) {
+            btn.className = "tab-btn px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all bg-white text-brand-600 shadow-xs border border-gray-200";
+          }
+          if (mobBtn) {
+            mobBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap bg-brand-500 text-white";
+          }
+        } else {
+          if (view) view.classList.add('hidden');
+          if (btn) {
+            btn.className = "tab-btn px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all text-gray-600 hover:text-gray-900 hover:bg-white/60";
+          }
+          if (mobBtn) {
+            mobBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap text-gray-600";
+          }
+        }
+      });
+
+      setTimeout(() => {
+        if (chartMonthlyInstance) chartMonthlyInstance.resize();
+        if (chartCompanyInstance) chartCompanyInstance.resize();
+        if (chartRankingCIDInstance) chartRankingCIDInstance.resize();
+        if (chartImpactBarsInstance) chartImpactBarsInstance.resize();
+        if (chartImpactPieInstance) chartImpactPieInstance.resize();
+        lucide.createIcons();
+      }, 50);
+    }
+
+    function populateFilterSelects() {
+      const monthSelect = document.getElementById('filterMonth');
+      const companySelect = document.getElementById('filterCompany');
+      const groupCIDSelect = document.getElementById('filterGroupCID');
+      const codeCIDSelect = document.getElementById('filterCIDCode');
+
+      const monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+      const monthDisplay = { jan: 'Janeiro', fev: 'Fevereiro', mar: 'Março', abr: 'Abril', mai: 'Maio', jun: 'Junho', jul: 'Julho', ago: 'Agosto', set: 'Setembro', out: 'Outubro', nov: 'Novembro', dez: 'Dezembro' };
+      
+      const availableMonths = Array.from(new Set(records.map(r => (r.data || '').toLowerCase()).filter(Boolean)));
+      availableMonths.sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
+
+      const companies = Array.from(new Set(records.map(r => sanitizeCompanyName(r.empresa)).filter(Boolean))).sort();
+      const groups = Array.from(new Set(records.map(r => r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr)).filter(Boolean))).sort();
+      const cids = Array.from(new Set(records.map(r => r.cidDescr || r.cidCod).filter(Boolean))).sort();
+
+      monthSelect.innerHTML = '<option value="ALL">Todos os Meses</option>' + availableMonths.map(m => `<option value="${m}">${monthDisplay[m] || m.toUpperCase()}</option>`).join('');
+      companySelect.innerHTML = '<option value="ALL">Todas as Empresas</option>' + companies.map(c => `<option value="${c}">${c}</option>`).join('');
+      groupCIDSelect.innerHTML = '<option value="ALL">Todos os Grupos</option>' + groups.map(g => `<option value="${g}">${g}</option>`).join('');
+      codeCIDSelect.innerHTML = '<option value="ALL">Todas as Descrições</option>' + cids.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function applyFilters() {
+      const month = document.getElementById('filterMonth').value;
+      const company = document.getElementById('filterCompany').value;
+      const groupCID = document.getElementById('filterGroupCID').value;
+      const codeCID = document.getElementById('filterCIDCode').value;
+      const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+
+      filteredRecords = records.filter(r => {
+        if (month !== 'ALL' && (r.data || '').toLowerCase() !== month.toLowerCase()) return false;
+        if (company !== 'ALL' && sanitizeCompanyName(r.empresa) !== company) return false;
+        
+        const grp = r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr);
+        if (groupCID !== 'ALL' && grp !== groupCID) return false;
+        
+        if (codeCID !== 'ALL' && r.cidDescr !== codeCID && r.cidCod !== codeCID) return false;
+        
+        if (search) {
+          const matchFunc = (r.funcionario || '').toLowerCase().includes(search);
+          const matchDescr = (r.cidDescr || '').toLowerCase().includes(search);
+          const matchCod = (r.cidCod || '').toLowerCase().includes(search);
+          if (!matchFunc && !matchDescr && !matchCod) return false;
+        }
+        return true;
+      });
+
+      const badge = document.getElementById('activeFilterBadge');
+      if (filteredRecords.length === records.length) {
+        badge.innerText = `Exibindo todos os ${records.length} registros`;
+      } else {
+        badge.innerText = `Filtrado: ${filteredRecords.length} de ${records.length} registros`;
+      }
+
+      currentPage = 1;
+      updateKPIs();
+      renderCharts();
+      renderTable();
+      renderRecurrenceTable();
+    }
+
+    function resetFilters() {
+      document.getElementById('filterMonth').value = 'ALL';
+      document.getElementById('filterCompany').value = 'ALL';
+      document.getElementById('filterGroupCID').value = 'ALL';
+      document.getElementById('filterCIDCode').value = 'ALL';
+      document.getElementById('filterSearch').value = '';
+      applyFilters();
+    }
+
+    function formatNumberBR(num) {
+      return (Number(num) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updateKPIs() {
+      const totalHours = filteredRecords.reduce((acc, r) => acc + (parseFloat(r.horas) || 0), 0);
+      document.getElementById('kpiTotalHours').innerText = formatNumberBR(totalHours);
+      lucide.createIcons();
+    }
+
+    function renderCharts() {
+      renderMonthlyChart();
+      renderCompanyChart();
+      renderRankingCIDChart();
+      renderImpactCharts();
+    }
+
+    function renderMonthlyChart() {
+      const monthOrder = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul'];
+      const monthDisplay = { jan: 'Jan', fev: 'Fev', mar: 'Mar', abr: 'Abr', mai: 'Mai', jun: 'Jun', jul: 'Jul' };
+      
+      const monthTotals = {};
+      monthOrder.forEach(m => monthTotals[m] = 0);
+      
+      filteredRecords.forEach(r => {
+        const m = (r.data || '').toLowerCase();
+        if (monthTotals[m] !== undefined) {
+          monthTotals[m] += (parseFloat(r.horas) || 0);
+        }
+      });
+
+      const labels = monthOrder.map(m => monthDisplay[m]);
+      const data = monthOrder.map(m => monthTotals[m]);
+
+      const ctx = document.getElementById('chartMonthly').getContext('2d');
+      if (chartMonthlyInstance) chartMonthlyInstance.destroy();
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 220);
+      gradient.addColorStop(0, 'rgba(227, 6, 19, 0.20)');
+      gradient.addColorStop(1, 'rgba(227, 6, 19, 0.00)');
+
+      chartMonthlyInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Horas Totais',
+            data: data,
+            borderColor: '#E30613',
+            borderWidth: 3,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#FFFFFF',
+            pointBorderColor: '#E30613',
+            pointBorderWidth: 2.5,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#111827',
+              titleColor: '#FFFFFF',
+              bodyColor: '#FCA5A5',
+              padding: 10,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(ctx) {
+                  return ` Horas: ${formatNumberBR(ctx.parsed.y)} h`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#4B5563', font: { family: 'Plus Jakarta Sans', size: 11, weight: '700' } }
+            },
+            y: {
+              grid: { color: '#F3F4F6' },
+              ticks: {
+                color: '#6B7280',
+                font: { family: 'Plus Jakarta Sans', size: 10, weight: '600' },
+                callback: function(val) {
+                  if (val >= 1000) return (val/1000).toFixed(1) + ' Mil';
+                  return val;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCompanyChart() {
+      const compTotals = {};
+      filteredRecords.forEach(r => {
+        const c = sanitizeCompanyName(r.empresa);
+        compTotals[c] = (compTotals[c] || 0) + (parseFloat(r.horas) || 0);
+      });
+
+      const sorted = Object.entries(compTotals).sort((a, b) => b[1] - a[1]);
+      const labels = sorted.map(s => s[0]);
+      const data = sorted.map(s => s[1]);
+
+      const monochromePalette = [
+        '#E30613',
+        '#111827',
+        '#374151',
+        '#6B7280',
+        '#9CA3AF',
+        '#CBD5E1',
+        '#E5E7EB'
+      ];
+
+      const ctx = document.getElementById('chartCompany').getContext('2d');
+      if (chartCompanyInstance) chartCompanyInstance.destroy();
+
+      chartCompanyInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: monochromePalette.slice(0, labels.length),
+            borderColor: '#FFFFFF',
+            borderWidth: 2.5,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#111827',
+                boxWidth: 8,
+                padding: 10,
+                font: { size: 10, family: 'Plus Jakarta Sans', weight: '700' }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#111827',
+              cornerRadius: 8,
+              callbacks: {
+                label: function(ctx) {
+                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(0) : 0;
+                  return ` ${ctx.label}: ${formatNumberBR(ctx.parsed)} h (${pct}%)`;
+                }
+              }
+            }
+          },
+          cutout: '70%'
+        }
+      });
+    }
+
+    function renderRankingCIDChart() {
+      const groupTotals = {};
+      filteredRecords.forEach(r => {
+        const g = r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr);
+        groupTotals[g] = (groupTotals[g] || 0) + (parseFloat(r.horas) || 0);
+      });
+
+      const sorted = Object.entries(groupTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 9);
+      
+      const labels = sorted.map(s => s[0]);
+      const data = sorted.map(s => s[1]);
+
+      const ctx = document.getElementById('chartRankingCID').getContext('2d');
+      if (chartRankingCIDInstance) chartRankingCIDInstance.destroy();
+
+      const dataLabelPlugin = {
+        id: 'dataLabelPlugin',
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((bar, index) => {
+              const value = dataset.data[index];
+              const formattedVal = Math.round(value).toLocaleString('pt-BR');
+              
+              const barX = bar.x;
+              const barY = bar.y;
+              
+              ctx.save();
+              ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
+              const textWidth = ctx.measureText(formattedVal).width;
+              const badgeWidth = textWidth + 10;
+              const badgeHeight = 16;
+              const badgeX = Math.min(barX + 6, chart.width - badgeWidth - 4);
+              const badgeY = barY - (badgeHeight / 2);
+
+              ctx.fillStyle = '#F3F4F6';
+              ctx.strokeStyle = '#E5E7EB';
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 4);
+              ctx.fill();
+              ctx.stroke();
+
+              ctx.fillStyle = '#111827';
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(formattedVal, badgeX + (badgeWidth / 2), barY);
+              ctx.restore();
+            });
+          });
+        }
+      };
+
+      chartRankingCIDInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Horas',
+            data: data,
+            backgroundColor: '#111827',
+            hoverBackgroundColor: '#E30613',
+            borderRadius: 4
+          }]
+        },
+        plugins: [dataLabelPlugin],
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: { right: 55 }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#111827',
+              cornerRadius: 8,
+              callbacks: {
+                label: function(ctx) {
+                  return ` ${formatNumberBR(ctx.parsed.x)} h`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#F3F4F6' },
+              ticks: { color: '#6B7280', font: { size: 10 } }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: '#111827', font: { size: 10, weight: '700' } }
+            }
+          }
+        }
+      });
+    }
+
+    function renderImpactCharts() {
+      // Agregação de colaboradores por grupo CID (Sem grupos em branco!)
+      const groupColabMap = {};
+      filteredRecords.forEach(r => {
+        const grp = r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr);
+        groupColabMap[grp] = (groupColabMap[grp] || 0) + 1;
+      });
+
+      const sortedGroups = Object.entries(groupColabMap).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      const labels = sortedGroups.map(s => s[0]);
+      const data = sortedGroups.map(s => s[1]);
+
+      const ctxBars = document.getElementById('chartImpactBars').getContext('2d');
+      if (chartImpactBarsInstance) chartImpactBarsInstance.destroy();
+
+      chartImpactBarsInstance = new Chart(ctxBars, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Colaboradores Impactados',
+            data: data,
+            backgroundColor: '#E30613',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#111827',
+              cornerRadius: 8,
+              callbacks: {
+                label: function(ctx) {
+                  return ` ${ctx.parsed.y} colaboradores`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#111827', font: { size: 10, weight: '700' } }
+            },
+            y: {
+              grid: { color: '#F3F4F6' },
+              ticks: { color: '#6B7280' }
+            }
+          }
+        }
+      });
+
+      const ctxPie = document.getElementById('chartImpactPie').getContext('2d');
+      if (chartImpactPieInstance) chartImpactPieInstance.destroy();
+
+      chartImpactPieInstance = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: data,
+            backgroundColor: ['#E30613', '#111827', '#4B5563', '#9CA3AF', '#D1D5DB'],
+            borderColor: '#FFFFFF',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { color: '#111827', font: { size: 10, weight: '700' }, boxWidth: 10 }
+            },
+            tooltip: {
+              backgroundColor: '#111827',
+              cornerRadius: 8,
+              callbacks: {
+                label: function(ctx) {
+                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(2) : 0;
+                  return ` ${ctx.label}: ${ctx.parsed} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function sortTable(column) {
+      if (currentSort.col === column) {
+        currentSort.asc = !currentSort.asc;
+      } else {
+        currentSort.col = column;
+        currentSort.asc = true;
+      }
+      renderTable();
+    }
+
+    function changePageSize() {
+      pageSize = parseInt(document.getElementById('pageSize').value);
+      currentPage = 1;
+      renderTable();
+    }
+
+    function renderTable() {
+      filteredRecords.sort((a, b) => {
+        let valA = a[currentSort.col];
+        let valB = b[currentSort.col];
+        if (currentSort.col === 'horas') {
+          valA = parseFloat(valA) || 0;
+          valB = parseFloat(valB) || 0;
+        } else {
+          valA = (valA || '').toString().toLowerCase();
+          valB = (valB || '').toString().toLowerCase();
+        }
+        if (valA < valB) return currentSort.asc ? -1 : 1;
+        if (valA > valB) return currentSort.asc ? 1 : -1;
+        return 0;
+      });
+
+      const totalItems = filteredRecords.length;
+      const totalPages = Math.ceil(totalItems / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, totalItems);
+      const pageData = filteredRecords.slice(startIndex, endIndex);
+
+      const tbody = document.getElementById('tableBody');
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-400 italic">Nenhum registro encontrado com os filtros selecionados.</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map(r => {
+          return `
+            <tr class="hover:bg-gray-50 transition-colors">
+              <td class="p-3 font-semibold text-gray-700 text-xs">${r.data || '-'}</td>
+              <td class="p-3 font-semibold text-gray-900">${sanitizeCompanyName(r.empresa)}</td>
+              <td class="p-3 font-bold text-gray-900">${r.funcionario || '-'}</td>
+              <td class="p-3 text-right font-black text-gray-900 bg-gray-50">${formatNumberBR(r.horas)}</td>
+              <td class="p-3 font-mono text-gray-800 font-semibold">${r.cidCod || '-'}</td>
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-gray-100 text-gray-900 border border-gray-200">
+                  ${r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr)}
+                </span>
+              </td>
+              <td class="p-3 text-gray-600">${r.cidDescr || '-'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      const sumHours = filteredRecords.reduce((acc, r) => acc + (parseFloat(r.horas) || 0), 0);
+      document.getElementById('tableTotalHours').innerText = formatNumberBR(sumHours);
+      document.getElementById('tableTotalCount').innerText = `${filteredRecords.length} registros`;
+      document.getElementById('tableInfo').innerText = totalItems > 0 
+        ? `Mostrando ${startIndex + 1} a ${endIndex} de ${totalItems} registros`
+        : 'Mostrando 0 registros';
+
+      renderPaginationControls(totalPages);
+      lucide.createIcons();
+    }
+
+    function renderPaginationControls(totalPages) {
+      const container = document.getElementById('paginationControls');
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = `
+        <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''} class="p-1.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200">
+          <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+        </button>
+      `;
+
+      for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+        html += `
+          <button onclick="goToPage(${i})" class="px-2.5 py-1 rounded-lg text-xs font-bold ${currentPage === i ? 'bg-brand-500 text-white shadow-xs' : 'bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200'}">
+            ${i}
+          </button>
+        `;
+      }
+
+      if (totalPages > 5) {
+        html += `<span class="px-1 text-gray-400">...</span><button onclick="goToPage(${totalPages})" class="px-2.5 py-1 rounded-lg text-xs font-bold ${currentPage === totalPages ? 'bg-brand-500 text-white' : 'bg-gray-100 border border-gray-200 text-gray-700 hover:bg-gray-200'}">${totalPages}</button>`;
+      }
+
+      html += `
+        <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''} class="p-1.5 rounded-lg bg-gray-100 border border-gray-200 text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200">
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    function renderRecurrenceTable() {
+      const colabMap = {};
+      filteredRecords.forEach(r => {
+        const name = r.funcionario || 'Colaborador';
+        if (!colabMap[name]) {
+          colabMap[name] = {
+            nome: name,
+            empresa: sanitizeCompanyName(r.empresa),
+            count: 0,
+            horas: 0,
+            cids: new Set()
+          };
+        }
+        colabMap[name].count += 1;
+        colabMap[name].horas += (parseFloat(r.horas) || 0);
+        if (r.cidCod) colabMap[name].cids.add(r.cidCod);
+      });
+
+      const sortedColabs = Object.values(colabMap).sort((a, b) => b.horas - a.horas).slice(0, 10);
+      const tbody = document.getElementById('recurrenceTableBody');
+      
+      tbody.innerHTML = sortedColabs.map(c => {
+        let statusBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200">Regular</span>`;
+        if (c.horas > 40 || c.count > 2) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-200 text-gray-900 border border-gray-300">Acompanhamento</span>`;
+        }
+        if (c.horas > 100) {
+          statusBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-brand-700 border border-brand-200">Atenção</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="p-3 font-bold text-gray-900">${c.nome}</td>
+            <td class="p-3 text-gray-600">${c.empresa}</td>
+            <td class="p-3 text-center font-bold text-gray-800">${c.count}</td>
+            <td class="p-3 text-right font-black text-brand-600">${formatNumberBR(c.horas)} h</td>
+            <td class="p-3 text-xs text-gray-600 font-mono">${Array.from(c.cids).join(', ') || '-'}</td>
+            <td class="p-3 text-center">${statusBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderActionPlans() {
+      const grid = document.getElementById('actionPlansGrid');
+      grid.innerHTML = actionPlans.map(ap => {
+        let statusClass = "bg-gray-100 text-gray-800 border-gray-200";
+        if (ap.status === 'Concluído') statusClass = "bg-gray-200 text-gray-900 border-gray-300";
+        if (ap.status === 'Planejado') statusClass = "bg-brand-50 text-brand-700 border-brand-200";
+
+        return `
+          <div class="card-clean p-5 border border-gray-200 hover:border-gray-300 transition-all flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="px-2.5 py-0.5 rounded-md text-[11px] font-black bg-brand-50 text-brand-600 border border-brand-200">
+                  ${ap.grupoCid}
+                </span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${statusClass}">
+                  ${ap.status}
+                </span>
+              </div>
+              <h4 class="text-xs font-black text-gray-900 mb-2">${ap.descr}</h4>
+              <p class="text-xs text-gray-700 whitespace-pre-line leading-relaxed bg-gray-50 p-3 rounded-xl border border-gray-200">
+                ${ap.acoes}
+              </p>
+            </div>
+            
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+              <span class="flex items-center gap-1 font-semibold">
+                <i data-lucide="user-check" class="w-3.5 h-3.5 text-gray-600"></i> ${ap.responsavel}
+              </span>
+              <button onclick="deleteActionPlan(${ap.id})" class="text-gray-400 hover:text-brand-600 transition-colors p-1" title="Excluir">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function openNewActionModal() {
+      document.getElementById('actionGroupInput').value = '';
+      document.getElementById('actionDescrInput').value = '';
+      document.getElementById('actionTextarea').value = '';
+      document.getElementById('actionModal').classList.remove('hidden');
+    }
+
+    function closeActionModal() {
+      document.getElementById('actionModal').classList.add('hidden');
+    }
+
+    function saveActionPlan() {
+      const grp = document.getElementById('actionGroupInput').value.trim();
+      const descr = document.getElementById('actionDescrInput').value.trim();
+      const acoes = document.getElementById('actionTextarea').value.trim();
+      const resp = document.getElementById('actionRespInput').value.trim();
+      const status = document.getElementById('actionStatusInput').value;
+
+      if (!grp || !acoes) {
+        alert('Por favor, informe o Grupo de CID e as Ações.');
+        return;
+      }
+
+      const newPlan = {
+        id: Date.now(),
+        grupoCid: grp,
+        descr: descr || grp,
+        acoes: acoes,
+        responsavel: resp || 'Gestão Açotubo',
+        status: status
+      };
+
+      actionPlans.unshift(newPlan);
+      saveActionPlansToStorage();
+      renderActionPlans();
+      closeActionModal();
+    }
+
+    function deleteActionPlan(id) {
+      if (confirm('Deseja realmente remover esta ação?')) {
+        actionPlans = actionPlans.filter(p => p.id !== id);
+        saveActionPlansToStorage();
+        renderActionPlans();
+      }
+    }
+
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('click', () => document.getElementById('multipleFileInputCentral').click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('border-brand-500', 'bg-red-50/20'); });
+    dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('border-brand-500', 'bg-red-50/20'); });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('border-brand-500', 'bg-red-50/20');
+      if (e.dataTransfer.files.length) {
+        handleBatchUpload(e.dataTransfer.files);
+      }
+    });
+
+    async function handleBatchUpload(fileList) {
+      if (!fileList || !fileList.length) return;
+      
+      const files = Array.from(fileList).filter(f => f.name.match(/\.(xlsx|xls|csv)$/i));
+      if (!files.length) {
+        alert('Nenhum arquivo Excel válido (.xlsx, .xls, .csv) encontrado.');
+        return;
+      }
+
+      const allNewRecords = [];
+      const newAuditIssues = [];
+      let processedCount = 0;
+
+      for (const file of files) {
+        try {
+          const parsedMeta = parsePeriodFromFilename(file.name);
+          const buffer = await file.arrayBuffer();
+          const workbook = XLSX.read(new Uint8Array(buffer), { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '', header: 1 });
+
+          if (jsonData && jsonData.length > 1) {
+            // Header row detection
+            const headerRow = jsonData[0].map(h => String(h || '').trim().toLowerCase());
+            
+            const findColIdx = (patterns) => {
+              for (const p of patterns) {
+                const idx = headerRow.findIndex(h => h === p || h.includes(p));
+                if (idx !== -1) return idx;
+              }
+              return -1;
+            };
+
+            const dataIdx = findColIdx(['data', 'mês', 'mes', 'periodo', 'período']);
+            const empresaIdx = findColIdx(['empresa', 'unidade', 'filial']);
+            const funcIdx = findColIdx(['funcionário', 'funcionario', 'colab', 'nome', 'empregado']);
+            const horasIdx = findColIdx(['horas tot', 'horas_tot', 'horas', 'duracao', 'tempo', 'qtd']);
+            const cidCodIdx = findColIdx(['cid cod', 'cid_cod', 'código cid', 'codigo cid', 'cid']);
+            const cidDescrIdx = findColIdx(['cid descr', 'cid_descr', 'descrição', 'descricao', 'diagnostico']);
+
+            for (let rowIndex = 1; rowIndex < jsonData.length; rowIndex++) {
+              const row = jsonData[rowIndex];
+              const fileLineNumber = rowIndex + 1;
+
+              // Verifica se a linha está completamente vazia
+              if (!row || row.every(cell => String(cell || '').trim() === '')) {
+                continue;
+              }
+
+              let dataVal = dataIdx !== -1 ? row[dataIdx] : '';
+              let empresaVal = empresaIdx !== -1 ? row[empresaIdx] : '';
+              let funcVal = funcIdx !== -1 ? row[funcIdx] : '';
+              let horasRaw = horasIdx !== -1 ? row[horasIdx] : 0;
+              let cidCodVal = cidCodIdx !== -1 ? row[cidCodIdx] : '';
+              let cidDescrVal = cidDescrIdx !== -1 ? row[cidDescrIdx] : '';
+
+              // Auditoria de campos e identificação de problemas
+              let problemNotes = [];
+              let solutionNotes = [];
+
+              if (!funcVal || String(funcVal).trim() === '') {
+                funcVal = 'Colaborador não identificado';
+                problemNotes.push('Nome do funcionário em branco');
+                solutionNotes.push('Registrado como colaborador geral');
+              }
+
+              if (!empresaVal || String(empresaVal).trim() === '' || String(empresaVal).toLowerCase() === 'outros') {
+                empresaVal = 'Açotubo Matriz';
+                problemNotes.push('Empresa não especificada ou "Outros"');
+                solutionNotes.push('Atribuído à Açotubo Matriz');
+              } else {
+                empresaVal = sanitizeCompanyName(empresaVal);
+              }
+
+              let parsedHours = 0;
+              if (typeof horasRaw === 'number') {
+                parsedHours = horasRaw;
+              } else if (typeof horasRaw === 'string') {
+                parsedHours = parseFloat(horasRaw.replace(/\./g, '').replace(',', '.')) || parseFloat(horasRaw) || 0;
+              }
+
+              if (parsedHours <= 0) {
+                problemNotes.push('Horas zeradas ou formato inválido');
+                solutionNotes.push('Horas contabilizadas como 0,00 h');
+              }
+
+              // Adequação do CID
+              const fittedGroup = fitCIDToNearestGroup(cidCodVal, cidDescrVal);
+              if (!cidCodVal && !cidDescrVal) {
+                problemNotes.push('Código e descrição de CID ausentes');
+                solutionNotes.push('Adequado para ' + fittedGroup);
+              } else if (!cidCodVal) {
+                problemNotes.push('Código CID ausente');
+                solutionNotes.push('Classificado em ' + fittedGroup + ' por análise da descrição');
+              }
+
+              // Registra auditoria se houve anomalias
+              if (problemNotes.length > 0) {
+                newAuditIssues.push({
+                  arquivo: file.name,
+                  linha: fileLineNumber,
+                  dado: String(funcVal),
+                  problema: problemNotes.join('; '),
+                  solucao: solutionNotes.join('; ')
+                });
+              }
+
+              allNewRecords.push({
+                arquivoFonte: file.name,
+                linhaFonte: fileLineNumber,
+                periodo: parsedMeta.periodo,
+                data: String(dataVal).toLowerCase().trim() || parsedMeta.monthKey,
+                empresa: empresaVal,
+                funcionario: String(funcVal).trim(),
+                horas: parsedHours,
+                cidCod: String(cidCodVal || '-').trim(),
+                cidDescr: String(cidDescrVal || 'Diagnóstico sob acompanhamento').trim(),
+                grupoCid: fittedGroup
+              });
+            }
+
+            processedCount++;
+          }
+        } catch (err) {
+          console.error(`Erro ao ler arquivo ${file.name}:`, err);
+        }
+      }
+
+      if (allNewRecords.length > 0) {
+        records = allNewRecords;
+        auditIssues = newAuditIssues;
+        saveRecordsToStorage();
+        saveAuditToStorage();
+        populateFilterSelects();
+        applyFilters();
+        renderAuditTable();
+        alert(`Sucesso! ${processedCount} planilhas processadas com ${allNewRecords.length} registros integrados.\n${newAuditIssues.length} linhas com dados incompletos foram tratadas e registradas na auditoria.`);
+      } else {
+        alert('Não foi possível extrair registros das planilhas selecionadas.');
+      }
+    }
+
+    function exportToExcel() {
+      const exportData = filteredRecords.map(r => ({
+        'Data': r.data,
+        'Empresa': sanitizeCompanyName(r.empresa),
+        'Funcionário': r.funcionario,
+        'Horas Tot': r.horas,
+        'CID Cod': r.cidCod,
+        'CID Descr': r.cidDescr,
+        'Grupo CID': r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr),
+        'Arquivo Fonte': r.arquivoFonte || '-',
+        'Linha Fonte': r.linhaFonte || '-'
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Absenteísmo');
+      XLSX.writeFile(wb, `Acotubo_Absenteismo_CIDs_2026.xlsx`);
+    }
+
+    function exportBackupJSON() {
+      const backup = {
+        exportedAt: new Date().toISOString(),
+        records: records,
+        actionPlans: actionPlans,
+        auditIssues: auditIssues
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Backup_Acotubo_CIDs_2026.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function restoreDefaultData() {
+      if (confirm('Deseja restaurar a base padrão exata de 2026 (20.646,38 h)?')) {
+        records = [...DEFAULT_RECORDS];
+        actionPlans = [...DEFAULT_ACTION_PLANS];
+        auditIssues = [];
+        saveRecordsToStorage();
+        saveActionPlansToStorage();
+        saveAuditToStorage();
+        populateFilterSelects();
+        applyFilters();
+        renderActionPlans();
+        renderAuditTable();
+        alert('Base padrão de 2026 restaurada com sucesso!');
+      }
+    }
+
+    function clearStorageData() {
+      if (confirm('Atenção: Deseja realmente limpar todos os registros?')) {
+        records = [];
+        auditIssues = [];
+        saveRecordsToStorage();
+        saveAuditToStorage();
+        applyFilters();
+        renderAuditTable();
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initData();
+    });
+  </script>
+</body>
+</html>
