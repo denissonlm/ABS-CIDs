@@ -518,6 +518,7 @@
           <table class="w-full text-left text-xs">
             <thead>
               <tr class="bg-gray-50 text-gray-700 font-extrabold uppercase tracking-wider border-b border-gray-200">
+                <th class="p-3 text-center w-12">Atestados</th>
                 <th class="p-3">Funcionário</th>
                 <th class="p-3">Empresa</th>
                 <th class="p-3 text-center">Nº de Atestados</th>
@@ -717,7 +718,7 @@
         <span class="font-extrabold text-gray-800">Grupo Açotubo</span> &bull; <span>Gestão de Absenteísmo 2026</span>
       </div>
       <div class="font-semibold text-gray-400">
-        <span>BI Absenteísmo &bull; 20.646,38 Horas</span>
+        <span>BI Absenteísmo &bull; Grupo Açotubo</span>
       </div>
     </div>
   </footer>
@@ -762,6 +763,83 @@
       <div class="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
         <button onclick="closeActionModal()" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold hover:bg-gray-200">Cancelar</button>
         <button onclick="saveActionPlan()" class="px-4 py-2 rounded-xl bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 shadow-sm shadow-brand-500/25">Salvar Ação</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- MODAL EXPANDIDO DE HISTÓRICO DE ATESTADOS DO COLABORADOR -->
+  <div id="colabAtestadosModal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-6 md:p-8 animate-fade-in" onclick="if(event.target===this) closeColabModal()">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden animate-scale-up" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="p-5 sm:p-6 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center font-black">
+            <i data-lucide="user-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 id="modalColabNome" class="text-base font-black tracking-tight text-white">Nome do Colaborador</h3>
+              <span id="modalColabMatricula" class="px-2.5 py-0.5 rounded-md text-[11px] font-mono font-bold bg-white/10 text-slate-300 border border-white/10">Matrícula: -</span>
+            </div>
+            <p id="modalColabEmpresa" class="text-xs text-slate-400 mt-0.5">Empresa / Unidade</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeColabModal()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-all" title="Fechar (ESC)">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Subheader KPIs -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 sm:p-5 bg-slate-50 border-b border-slate-200 text-xs">
+        <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Total de Atestados</span>
+          <span id="modalColabCount" class="text-base font-black text-slate-900">0 ocorrências</span>
+        </div>
+        <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Total de Horas</span>
+          <span id="modalColabHoras" class="text-base font-black text-brand-600">0,00 h</span>
+        </div>
+        <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Diagnósticos (CIDs)</span>
+          <span id="modalColabCidsCount" class="text-base font-black text-slate-900">0 distintos</span>
+        </div>
+        <div class="p-3.5 bg-white rounded-xl border border-slate-200 shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">Status SESMT</span>
+          <div id="modalColabStatus" class="mt-0.5">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200">Regular</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table of records -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-xs">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-extrabold uppercase tracking-wider border-b border-slate-200">
+                <th class="p-3">Mês / Período</th>
+                <th class="p-3">Código CID</th>
+                <th class="p-3">Grupo CID</th>
+                <th class="p-3">Diagnóstico / Descrição</th>
+                <th class="p-3 text-right">Horas</th>
+                <th class="p-3 text-slate-500">Arquivo / Linha</th>
+              </tr>
+            </thead>
+            <tbody id="modalColabTableBody" class="divide-y divide-slate-100 font-medium text-slate-700">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+        <span id="modalColabFooterInfo" class="font-medium">Exibindo histórico completo de afastamentos</span>
+        <button onclick="closeColabModal()" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-xs active:scale-95">
+          Fechar
+        </button>
       </div>
     </div>
   </div>
@@ -2192,6 +2270,7 @@ let records = [];
         const key = (r.matricula && r.matricula !== '-') ? r.matricula : (r.uniqueId || name.toLowerCase().trim());
         if (!colabMap[key]) {
           colabMap[key] = {
+            key: key,
             nome: name,
             matricula: r.matricula || '-',
             empresa: sanitizeCompanyName(r.empresa),
@@ -2205,7 +2284,7 @@ let records = [];
         if (r.cidCod) colabMap[key].cids.add(r.cidCod);
       });
 
-      const sortedColabs = Object.values(colabMap).sort((a, b) => b.horas - a.horas).slice(0, 10);
+      const sortedColabs = Object.values(colabMap).sort((a, b) => b.horas - a.horas).slice(0, 15);
       const tbody = document.getElementById('recurrenceTableBody');
       
       tbody.innerHTML = sortedColabs.map(c => {
@@ -2217,9 +2296,17 @@ let records = [];
           statusBadge = `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-brand-700 border border-brand-200">Atenção</span>`;
         }
 
+        const matBadge = c.matricula && c.matricula !== '-' ? `<span class="text-[10px] text-gray-400 font-mono ml-1.5 font-normal">(${c.matricula})</span>` : '';
+        const safeKey = encodeURIComponent(c.key);
+
         return `
-          <tr class="hover:bg-gray-50">
-            <td class="p-3 font-bold text-gray-900">${c.nome}</td>
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="p-3 text-center">
+              <button onclick="openColabModal('${safeKey}')" class="inline-flex items-center justify-center p-1.5 rounded-lg bg-brand-50 text-brand-600 hover:bg-brand-500 hover:text-white border border-brand-200 transition-all shadow-xs active:scale-95 group" title="Visualizar todos os atestados de ${c.nome}">
+                <i data-lucide="eye" class="w-3.5 h-3.5 transition-transform group-hover:scale-110"></i>
+              </button>
+            </td>
+            <td class="p-3 font-bold text-gray-900">${c.nome}${matBadge}</td>
             <td class="p-3 text-gray-600">${c.empresa}</td>
             <td class="p-3 text-center font-bold text-gray-800">${c.count}</td>
             <td class="p-3 text-right font-black text-brand-600">${formatNumberBR(c.horas)} h</td>
@@ -2228,7 +2315,92 @@ let records = [];
           </tr>
         `;
       }).join('');
+      lucide.createIcons();
     }
+
+    function openColabModal(encodedKey) {
+      const key = decodeURIComponent(encodedKey);
+      
+      // Filtrar todos os registros desse colaborador em toda a base records
+      const colabRecords = records.filter(r => {
+        const name = formatTitleCase(r.funcionario || 'Colaborador');
+        const rKey = (r.matricula && r.matricula !== '-') ? r.matricula : (r.uniqueId || name.toLowerCase().trim());
+        return rKey === key;
+      });
+
+      if (!colabRecords || colabRecords.length === 0) return;
+
+      // Ordenar por ordem cronológica de mês
+      colabRecords.sort((a, b) => getMonthChronoIndex(a.data) - getMonthChronoIndex(b.data));
+
+      const first = colabRecords[0];
+      const nome = formatTitleCase(first.funcionario || 'Colaborador');
+      const matricula = first.matricula && first.matricula !== '-' ? first.matricula : 'Não informada';
+      const empresa = sanitizeCompanyName(first.empresa);
+
+      const totalHoras = colabRecords.reduce((acc, r) => acc + (parseFloat(r.horas) || 0), 0);
+      const totalCount = colabRecords.length;
+      const uniqueCids = new Set(colabRecords.map(r => r.cidCod).filter(Boolean));
+
+      document.getElementById('modalColabNome').innerText = nome;
+      document.getElementById('modalColabMatricula').innerText = `Matrícula: ${matricula}`;
+      document.getElementById('modalColabEmpresa').innerText = empresa;
+      
+      document.getElementById('modalColabCount').innerText = `${totalCount} ${totalCount === 1 ? 'ocorrência' : 'ocorrências'}`;
+      document.getElementById('modalColabHoras').innerText = `${formatNumberBR(totalHoras)} h`;
+      document.getElementById('modalColabCidsCount').innerText = `${uniqueCids.size} ${uniqueCids.size === 1 ? 'diagnóstico' : 'diagnósticos'}`;
+
+      let statusBadge = `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-700 border border-gray-200">Regular</span>`;
+      if (totalHoras > 40 || totalCount > 2) {
+        statusBadge = `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-gray-200 text-gray-900 border border-gray-300">Acompanhamento</span>`;
+      }
+      if (totalHoras > 100) {
+        statusBadge = `<span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-brand-700 border border-brand-200">Atenção Prioritária</span>`;
+      }
+      document.getElementById('modalColabStatus').innerHTML = statusBadge;
+
+      const tbody = document.getElementById('modalColabTableBody');
+      tbody.innerHTML = colabRecords.map((r, idx) => {
+        return `
+          <tr class="hover:bg-slate-50 transition-colors">
+            <td class="p-3 font-semibold text-slate-800">
+              <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 border border-slate-200">${r.data ? r.data.toUpperCase() : '-'}</span>
+              <span class="text-[11px] text-slate-500 block mt-0.5">${r.periodo || ''}</span>
+            </td>
+            <td class="p-3 font-mono font-bold text-slate-900">${r.cidCod || '-'}</td>
+            <td class="p-3">
+              <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-brand-50 text-brand-700 border border-brand-200">
+                ${r.grupoCid || fitCIDToNearestGroup(r.cidCod, r.cidDescr)}
+              </span>
+            </td>
+            <td class="p-3 text-slate-700 max-w-xs leading-relaxed">${r.cidDescr || '-'}</td>
+            <td class="p-3 text-right font-black text-brand-600">${formatNumberBR(r.horas)} h</td>
+            <td class="p-3 text-[11px] text-slate-400 font-mono">${r.arquivoFonte || '-'} (L${r.linhaFonte || '-'})</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('modalColabFooterInfo').innerText = `Total de ${totalCount} ocorrência(s) registrada(s) somando ${formatNumberBR(totalHoras)} horas de afastamento.`;
+
+      const modal = document.getElementById('colabAtestadosModal');
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+      lucide.createIcons();
+    }
+
+    function closeColabModal() {
+      const modal = document.getElementById('colabAtestadosModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeColabModal();
+      }
+    });
 
     function renderActionPlans() {
       const grid = document.getElementById('actionPlansGrid');
